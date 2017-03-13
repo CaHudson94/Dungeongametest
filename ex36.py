@@ -14,6 +14,8 @@ back = ("Back, back, B, b")
 yes = ("yes", "y")
 no = ("no", "n")
 die = ("die", "Die", "I die", "I Die", "i die", "i Die", "dead", "Dead")
+inventory = ("Inventory", "inventory", "I", "i")
+
 dragon_in_room = False
 
 game_state = {
@@ -35,6 +37,9 @@ def do_loop():
                 elif closer in no:
                     print "Alright back to it then."
                     do_loop()
+                elif closer in back
+                    print "Guess you don't need to look at anything, back to it."
+                    do_loop()
                 else:
                     print "That is not very helpful. Why don't you try something like yes or no?"
 
@@ -45,6 +50,9 @@ def do_loop():
                     print closerlookitems
                 elif closer in no:
                     print "Alright back to it then."
+                    do_loop()
+                elif closer in back
+                    print "Guess you don't need to look at anything, back to it."
                     do_loop()
                 else:
                     print "That is not very helpful. Why don't you try something like yes or no?"
@@ -59,21 +67,41 @@ def do_loop():
 
         elif choice in take
             t_choice = raw_input("What would you like to take?\n> ")
-                if t_choice = item1
-                    print "You took %s, %s!" % item1, item1des
+                if start_item = True
+                    print "You have chosen your path! Only one may be taken, move along!"
                     do_loop()
-                    game_state.inventory(item1)
+
+                elif t_choice = item1
+                    if item1 in game_state.inventory()
+                        print "You already have that."
+                        do_loop()
+                    else:
+                        print "You took %s, %s!" % item1, item1des
+                        do_loop()
+                        game_state.inventory.append(item1)
+
                 elif t_choice = item2
-                    print "You took %s, %s!" % item2, item2des
-                    do_loop()
-                    game_state.inventoy(item2)
+                    if item2 in game_state.inventory()
+                        print "You already have that."
+                        do_loop()
+                    else:
+                        print "You took %s, %s!" % item2, item2des
+                        do_loop()
+                        game_state.inventoy.append(item2)
+
                 elif t_choice = item3
-                    print "You took %s, %s!" % item3, item3des
-                    do_loop()
-                    game_state.inventoy(item3)
+                    if item3 in game_state.inventory()
+                        print "You already have that."
+                        do_loop()
+                    else:
+                        print "You took %s, %s!" % item3, item3des
+                        do_loop()
+                        game_state.inventory.append(item3)
+
                 elif t_choice in back
                     print "Guess you don't want any of this junk, back to it."
                     do_loop()
+
                 else:
                     print "You can't take that try something else, maybe try 'the item'."
                     do_loop()
@@ -123,8 +151,11 @@ def entrance_hall():
     print "Use listen to hear inside a room you haven't entered."
     print "Use take to pick up items."
     print "Use look to look at things(usually an item(s) or door(s))."
+    print "If you would like to see what you have use Inventory or I."
+    print "Use back to make a different choice."
 
-
+if game_state.inventoy(None) = False
+    start_item = True
 
     doors = ("A Black door", "A Red door", "A Silver door")
     items = ("A Staff", "A Sword", "A Cloak")
