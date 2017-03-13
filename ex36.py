@@ -49,7 +49,7 @@ def do_loop():
                 else:
                     print "That is not very helpful. Why don't you try something like yes or no?"
 
-            elif lo_choice == back
+            elif lo_choice in back
                 print "Guess you don't need to look at anything, back to it."
                 do_loop()
 
@@ -57,12 +57,26 @@ def do_loop():
                 print "That is not helpful! next time try looking at something in the room or just go back..."
 
 
-        elif choice == take
+        elif choice in take
             t_choice = raw_input("What would you like to take?\n> ")
                 if t_choice = item1
                     print "You took %s, %s!" % item1, item1des
                     do_loop()
-                elif
+                    game_state.inventory(item1)
+                elif t_choice = item2
+                    print "You took %s, %s!" % item2, item2des
+                    do_loop()
+                    game_state.inventoy(item2)
+                elif t_choice = item3
+                    print "You took %s, %s!" % item3, item3des
+                    do_loop()
+                    game_state.inventoy(item3)
+                elif t_choice in back
+                    print "Guess you don't want any of this junk, back to it."
+                    do_loop()
+                else:
+                    print "You can't take that try something else, maybe try 'the item'."
+                    do_loop()
 
 
         elif choice == lis
@@ -114,11 +128,11 @@ def entrance_hall():
 
     doors = ("A Black door", "A Red door", "A Silver door")
     items = ("A Staff", "A Sword", "A Cloak")
-    item1 = ("The Staff")
+    item1 = ("the staff")
     item1des = ("the torches blaze up, wind howles through the room, and lightning strikes the crystal atop it")
-    item2 = ("The Sword")
+    item2 = ("the sword")
     item2des = ("")
-    item3 = ("The Cloak")
+    item3 = ("the cloak")
     item3des = ("")
     closerlookdoors = ("The Black door is so dark you have a hard time telling it is even there.",
                     "The Red door appears as if it is on fire and is even a little warm to the touch.",
