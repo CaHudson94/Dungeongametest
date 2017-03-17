@@ -19,11 +19,11 @@ inventory = ("Inventory", "inventory", "I", "i")
 dragon_in_room = False
 
 game_state = {
-    inventory = None
+    "inventory": None
 }
 
 input_dict ={
-
+    "keys": None
 }
 
 
@@ -34,14 +34,36 @@ class Item(object):
         self.take_me = take_me
         self.valid_choices = valid_choices
 
-def item_string_convert(t_choice):
-    for Item in input_dict.keys():
+def pickup_converter(t_choice):
+    for key in input_dict.keys():
         if t_choice in input_dict[key].valid_choices:
             return input_dict[key]
 
+            if start_item is True:
+                print "You have chosen your path! Only one may be taken, move along!"
+                do_loop()
+
+            elif key in input_dict.keys and key not in game_state.inventory:
+                game_state.inventory.append(key)
+                input_dict.keys.remove(key)
+                print "You picked up %s, it has been added to your inventory" % input_dict[key].name
+                print(item.take.me)
+                do_loop()
+
+            elif item in game_state.inventory:
+                print ("You already have that.")
+                do_loop()
+
+            elif t_choice in back:
+                print "Guess you don't want any of this junk, back to it."
+                do_loop()
+
+            else:
+                print "You can't take that try something else, maybe try 'the item'."
+                do_loop()
 
 def do_loop():
-    while do_loop = True:
+    while True:
         choice = raw_input("What do you choose to do?\n> ")
 
         if choice in look:
@@ -55,13 +77,13 @@ def do_loop():
                 elif closer in no:
                     print "Alright back to it then."
                     do_loop()
-                elif closer in back
+                elif closer in back:
                     print "Guess you don't need to look at anything, back to it."
                     do_loop()
                 else:
                     print "That is not very helpful. Why don't you try something like yes or no?"
 
-            elif lo_choice in item
+            elif lo_choice in item:
                 print "You see %s, %s, and %s." % items
                 closer = raw_input("Would you like to look closer?").lower()
                 if closer in yes:
@@ -69,13 +91,13 @@ def do_loop():
                 elif closer in no:
                     print "Alright back to it then."
                     do_loop()
-                elif closer in back
+                elif closer in back:
                     print "Guess you don't need to look at anything, back to it."
                     do_loop()
                 else:
                     print "That is not very helpful. Why don't you try something like yes or no?"
 
-            elif lo_choice in back
+            elif lo_choice in back:
                 print "Guess you don't need to look at anything, back to it."
                 do_loop()
 
@@ -84,54 +106,38 @@ def do_loop():
 
         elif choice in take:
             t_choice = raw_input("What would you like to take?\n> ")
+            pickup_converter()
 
-                if start_item = True
-                    print "You have chosen your path! Only one may be taken, move along!"
-                    do_loop()
-
-                elif item in master_items_dict and item not in game_state.inventory:
-                    game_state.inventory.append(item)
-                    master_items_dict.remove(item)
-                    print(item.take_me)
-                elif item in game_state.inventory:
-                    print ("You already have that.")
-
-            else:
-                print "You can't take that try something else, maybe try 'the item'."
-                do_loop()
-
-
-                if start_item = True
-                    print "You have chosen your path! Only one may be taken, move along!"
-                    do_loop()
-
-                elif t_choice in back
-                    print "Guess you don't want any of this junk, back to it."
-                    do_loop()
-
-
-
-        elif choice in lis
+        elif choice in lis:
             li_choice = raw_input("What would you like to listen to?\n> ")
 
-        elif choice in ent
-            e_choice = raw_input("Where would you like to enter?\n> ")
+        elif choice in ent:
+            e_choice = raw_input("Where would you like to enter?\n> ").lower()
+                if e_choice in door1:
+                    return ldoor
+                elif e_choice in door2:
+                    return cdoor
+                elif echoice in door3:
+                    return rdoor
+                else:
+                    print "Try choosing a door next time?"
+                    do_loop()
 
-        elif choice in help
+        elif choice in help:
             print "Things you can do: "
             print "Look, Take, Listen, Enter."
             print "These can be used with objects as well such as doors!"
 
-        elif choice in die
+        elif choice in die:
             if dragon_in_room:
                 print "You decide to die here but there is a dragon, it toasts you alive then eats you in two bites"
             else:
                 print "I don't know why but you chose to die, your neck snaps!"
                 print "GAME OVER!"
                     restart = raw_input("Would you like to Restart?\n> ")
-                    if restart == yes
+                    if restart in yes:
                         entrance_hall()
-                    elif restart == no
+                    elif restart in no:
                         exit(0)
                     else:
                         print "I will take that as a no."
@@ -158,21 +164,29 @@ def entrance_hall():
     print "If you would like to see what you have use Inventory or I."
     print "Use back to make a different choice."
 
-    if game_state.inventoy(None) = False
+
+
+    if game_state.inventoy(None) False:
         start_item = True
 
     doors = ("A Black door", "A Red door", "A Silver door")
+    door1 = ("black door", "the black door", "a black door")
+    door2 = ("red door", "the red door", "a red door")
+    door3 = ("silver door", "the silver door", "a silver door")
     items = ("A Staff", "A Sword", "A Cloak")
+    ldoor = troll_room()
+    cdoor = lava_room()
+    rdoor = goblin_room()
 
     staff = Item(
     name = "The Staff of Power"
-    description = "The Staff is tall and twisted, made of a deep dark wood and topped with an ever changing crystal.",
-                    " It exudes power, pulsing and searing against the air."
+    description = ("The Staff is tall and twisted, made of a deep dark wood and topped with an ever changing crystal.",
+                    " It exudes power, pulsing and searing against the air.")
     take_me = "The torches blaze up, wind howles through the room, and lightning strikes the crystal atop it! You got The Staff of Power!"
     valid_choices = ("Staff", "staff", "A Staff", "a Staff", "A staff", "a staff", "The Staff",
     "the Staff", "The staff", "the staff")
     )
-    input_dict.append(staff)
+    input_dict.keys["staff"] = staff
 
     sword = Item(
     name = "The "
@@ -182,7 +196,7 @@ def entrance_hall():
     valid_choices = ("Sword", "sword", "A Sword", "a Sword", "A sword", "a sword", "The Sword",
     "the Sword", "The sword", "the sword")
     )
-    input_dict.append(sword)
+    input_dict.keys.["sword"] = sword
 
     cloak = Item(
     name = "Nigh"
@@ -192,7 +206,7 @@ def entrance_hall():
     valid_choices = ("Cloak", "cloak", "A Cloak", "a Cloak", "A cloak", "a cloak", "The Cloak",
     "the Cloak", "The cloak", "the cloak")
     )
-    input_dict.append(cloak)
+    input_dict.keys.["cloak"] = cloak
 
     closerlookdoors = ("The Black door is so dark you have a hard time telling it is even there.",
                     "The Red door appears as if it is on fire and is even a little warm to the touch.",
@@ -203,6 +217,17 @@ def entrance_hall():
     door1 = ("Listening at the Black door you hear only the slightest, quietest breath of wind and an unsettling amount of nothing else.")
     door2 = ("Listening at the Red door you hear the crackle of fire, as if from more torches and a deep distant rumble.")
     door3 = ("Listening at the Silver door you hear running water, an odd snorting, and a very faint, very distant mixture of rumbling")
+
+    do_loop()
+
+def troll_room():
+
+
+def goblin_room():
+
+
+def lava_room():
+
 
 
 def dragon_chamber():
