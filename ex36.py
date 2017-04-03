@@ -2,7 +2,6 @@
 #First room is entrance hall
 #The final two rooms are treasure and dragon
 from sys import exit
-import action
 
 look = ("Look", "look")
 take = ("Take", "take")
@@ -19,9 +18,9 @@ die = ("die", "Die", "I die", "I Die", "i die", "i Die", "dead", "Dead")
 inventory = ("Inventory", "inventory", "I", "i")
 quit = ("Quit", "quit", "Q", "q", "Exit", "exit", "E", "e")
 
-dragon_in_room = False
-
 def new_game():
+    dragon_in_room = False
+
     game_state = {
         "inventory": []
         "room": {
