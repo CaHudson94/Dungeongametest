@@ -1,3 +1,4 @@
+#ex 36 and 43
 #This is my first game and it starts with a road map
 #First room is entrance hall
 #The final two rooms are treasure and dragon
