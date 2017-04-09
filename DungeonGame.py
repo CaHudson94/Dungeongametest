@@ -90,7 +90,6 @@ item = ("Item, item, Items, items")
 roomlis = ("Room", "room", "The Room", "the room", "The room", "the Room")
 
 
-
 class room(object):
 
     self.items = []
@@ -104,7 +103,6 @@ class door(room):
         self.lis = lis
         self.description = description
 
-
 class item(room):
 
     def __init__(self, name, description, take_me, valid_choices):
@@ -112,7 +110,6 @@ class item(room):
         self.description = description
         self.take_me = take_me
         self.valid_choices = valid_choices
-
 
 class enemies(room):
 
@@ -410,7 +407,7 @@ def entrance_hall():
     return action()
 
 def troll_room():
-
+    
     pass
 
 def goblin_room():
