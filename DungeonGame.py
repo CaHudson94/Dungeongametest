@@ -4,8 +4,17 @@
 #The final two rooms are treasure and dragon
 from sys import exit
 
-look = ("Look", "look")
-take = ("Take", "take")
+game_state = {}
+
+look = command(
+    name = "Look"
+    valid_choices = ("Look", "look", "L", "l")
+)
+game_state.commands["Look"]
+take = command(
+name = "Take"
+valid_choices = ("Take", "take", "T", "t")
+)
 lis = ("Listen", "listen")
 ent = ("Enter", "enter")
 door = ("Door", "door", "the door", "The door","the Door", "The Door",
@@ -18,9 +27,15 @@ no = ("no", "n")
 die = ("die", "Die", "I die", "I Die", "i die", "i Die", "dead", "Dead")
 inventory = ("Inventory", "inventory", "I", "i")
 quit = ("Quit", "quit", "Q", "q", "Exit", "exit", "E", "e")
-game_state = {}
+roomlis = ("Room", "room", "The Room", "the room", "The room", "the Room")
+interact = ("Int", "int", "In", "in", )
 
+class command(list):
 
+    def __init__(self, name, valid_choices):
+        self.name = name
+        self.valid_choices = valid_choices
+        
 class room(object):
 
     def enter(self):
@@ -44,31 +59,48 @@ class enemies(room):
 
 
 def new_game():
-    global game_state
-    game_state = {
+    global game_state = {
         "player": {
             "inventory": [],
-            "attacks": [],  # not sure about this one
-        },
+            "attacks": [], #not sure about this one
+            },
         "room": {
+            "lis" =,
             "items": [],
             "doors": [],
             "enemies": [],
-        },
-    }
+            },
+        "commands":[]
+        }
 
-    dragon_in_room = False
-    pendant = Item('', '', '', '',)
+    dragon = False
 
-    if pendant not in game_state['player']['inventory']:
-        unburnt = False
+    unburnt = False
 
     entrance_hall()
+
+def listen_converter(li_choice):
+    for door in game_state.room.doors():
+        if li_choice in game_state.room.doors.[door].valid_choices:
+
+            return game_state.room.doors.[door].listen
+
+        elif li_choice in roomlis
+
+            return game_state.room.lis
+
+        else:
+            print "You can\'t listen to that, silly."
+            return action()
 
 def entry_converter(e_choice):
     for door in game_state['room']['doors']:
         if e_choice in game_state['room']['doors'][door]['valid_choices']:
             return game_state['room']['door'][door]['enter']
+
+        else:
+            "Either that isn\'t a door, isn\'t in this room, or your just crazy!"
+            return action()
 
 def pickup_converter(t_choice):
     for item in game_state.room.items():
@@ -77,8 +109,10 @@ def pickup_converter(t_choice):
             if item in game_state.room.items and key not in game_state.inventory:
                 game_state.inventory.append(item)
                 game_state.room.items.remove(item)
+
                 print(item.take_me)
                 print "You picked up %s, it has been added to your inventory" % game_state['room'][item]['name']
+
                 return action()
 
             elif item == "staff" or "sword" or "cloak" and item in game_state.inventory:
@@ -90,12 +124,16 @@ def pickup_converter(t_choice):
                 return action()
 
             elif t_choice in back:
-                print "Guess you don't want any of this junk, back to it."
+                print "Guess you don\'t want any of this junk, back to it."
                 return action()
 
             else:
-                print "You can't take that try something else, maybe try 'the item'."
+                print "You can\'t take that try something else, maybe try \'the item\'."
                 return action()
+
+        else:
+            print "You can\'t take that try something else, maybe try \'the item\'."
+            return action()
 
 def restart():
     restart = raw_input("Would you like to Restart?\n> ")
@@ -158,11 +196,13 @@ def action():
 
         elif choice in lis:
             li_choice = raw_input("What would you like to listen to?\n> ")
-
+            listen_converter(li_choice)
 
         elif choice in ent:
             e_choice = raw_input("Which door would you like to enter?\n> ").lower()
             entry_converter()
+
+        elif choice in interact:
 
         elif choice in help:
             print "Things you can do: "
@@ -255,6 +295,7 @@ def entrance_hall():
     )
 
     game_state['room']['items'].append(staff)
+
 
     sword = Item(
         name = "Sanguineus",
