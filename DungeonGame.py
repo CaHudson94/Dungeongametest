@@ -4,8 +4,15 @@
 #The final two rooms are treasure and dragon
 from sys import exit
 
-look = ("Look", "look")
-take = ("Take", "take")
+look = command(
+    name = "Look"
+    valid_choices = ("Look", "look", "L", "l")
+)
+game_state.commands["Look"]
+take = command(
+name = "Take"
+valid_choices = ("Take", "take", "T", "t")
+)
 lis = ("Listen", "listen")
 ent = ("Enter", "enter")
 door = ("Door", "door", "the door", "The door","the Door", "The Door",
@@ -18,6 +25,14 @@ no = ("no", "n")
 die = ("die", "Die", "I die", "I Die", "i die", "i Die", "dead", "Dead")
 inventory = ("Inventory", "inventory", "I", "i")
 quit = ("Quit", "quit", "Q", "q", "Exit", "exit", "E", "e")
+roomlis = ("Room", "room", "The Room", "the room", "The room", "the Room")
+interact = ("Int", "int", "In", "in", )
+
+class command(list):
+
+    def __init__(self, name, valid_choices):
+        self.name = name
+        self.valid_choices = valid_choices
 
 class room(object):
 
@@ -50,19 +65,39 @@ def new_game():
             "attacks": [] #not sure about this one
             }
         "room": {
+            "lis" =
             "items": []
             "doors": []
             "enemies": []
             }
+        "commands":[]
         }
 
     entrance_hall()
+
+def listen_converter(li_choice):
+    for door in game_state.room.doors():
+        if li_choice in game_state.room.doors.[door].valid_choices:
+
+            return game_state.room.doors.[door].listen
+
+        elif li_choice in roomlis
+
+            return game_state.room.lis
+
+        else:
+            print "You can\'t listen to that, silly."
+            return action()
 
 def entry_converter(e_choice):
     for door in game_state.room.doors():
         if e_choice in game_state.room.doors.[door].valid_choices:
 
             return game_state.room.doors.[door].enter
+
+        else:
+            "Either that isn\'t a door, isn\'t in this room, or your just crazy!"
+            return action()
 
 def pickup_converter(t_choice):
     for item in game_state.room.items():
@@ -71,7 +106,7 @@ def pickup_converter(t_choice):
             if item in game_state.room.items and key not in game_state.inventory:
                 game_state.inventory.append(item)
                 game_state.room.items.remove(item)
-                print(item.take_me)
+                print (item.take_me)
                 print "You picked up %s, it has been added to your inventory" % game_state.room.[item].name
                 return action()
 
@@ -84,12 +119,16 @@ def pickup_converter(t_choice):
                 return action()
 
             elif t_choice in back:
-                print "Guess you don't want any of this junk, back to it."
+                print "Guess you don\'t want any of this junk, back to it."
                 return action()
 
             else:
-                print "You can't take that try something else, maybe try 'the item'."
+                print "You can\'t take that try something else, maybe try \'the item\'."
                 return action()
+
+        else:
+            print "You can\'t take that try something else, maybe try \'the item\'."
+            return action()
 
 def restart():
     restart = raw_input("Would you like to Restart?\n> ")
@@ -152,11 +191,13 @@ def action():
 
         elif choice in lis:
             li_choice = raw_input("What would you like to listen to?\n> ")
-
+            listen_converter(li_choice)
 
         elif choice in ent:
             e_choice = raw_input("Which door would you like to enter?\n> ").lower()
             entry_converter()
+
+        elif choice in interact:
 
         elif choice in help:
             print "Things you can do: "
@@ -249,7 +290,7 @@ def entrance_hall():
     valid_choices = ("Staff", "staff", "A Staff", "a Staff", "A staff", "a staff", "The Staff",
     "the Staff", "The staff", "the staff")
     )
-    game_state.room.keys["staff"] = staff
+    game_state.room.items.["staff"] = staff
 
     sword = Item(
     name = "Sanguineus"
@@ -259,7 +300,7 @@ def entrance_hall():
     valid_choices = ("Sword", "sword", "A Sword", "a Sword", "A sword", "a sword", "The Sword",
     "the Sword", "The sword", "the sword")
     )
-    game_state.room.keys.["sword"] = sword
+    game_state.room.items.["sword"] = sword
 
     cloak = Item(
     name = "Nigh"
@@ -269,7 +310,7 @@ def entrance_hall():
     valid_choices = ("Cloak", "cloak", "A Cloak", "a Cloak", "A cloak", "a cloak", "The Cloak",
     "the Cloak", "The cloak", "the cloak")
     )
-    game_state.room.keys.["cloak"] = cloak
+    game_state.room.items.["cloak"] = cloak
 
     closerlookdoors = ("The Black door is so dark you have a hard time telling it is even there.",
                     "The Red door appears as if it is on fire and is even a little warm to the touch.",
