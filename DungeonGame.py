@@ -6,50 +6,107 @@ from sys import exit
 
 game_state = {}
 
-look = command(
-    name = "Look"
-    valid_choices = ("Look", "look", "L", "l")
-)
-game_state.commands["Look"]
-take = command(
-name = "Take"
-valid_choices = ("Take", "take", "T", "t")
-)
-lis = ("Listen", "listen")
-ent = ("Enter", "enter")
-door = ("Door", "door", "the door", "The door","the Door", "The Door",
-"Doors", "doors", "the doors", "The doors","the Doors", "The Doors",)
-item = ("Item, item, Items, items")
-help = ("Help", "help", "H", "h")
-back = ("Back, back, B, b")
-yes = ("yes", "y")
-no = ("no", "n")
-die = ("die", "Die", "I die", "I Die", "i die", "i Die", "dead", "Dead")
-inventory = ("Inventory", "inventory", "I", "i")
-quit = ("Quit", "quit", "Q", "q", "Exit", "exit", "E", "e")
-roomlis = ("Room", "room", "The Room", "the room", "The room", "the Room")
-interact = ("Int", "int", "In", "in", )
-
 class command(list):
 
     def __init__(self, name, valid_choices):
         self.name = name
         self.valid_choices = valid_choices
 
+look = command(
+    name = "Look",
+    valid_choices = ("Look", "look", "L", "l", "Lo", "lo"),
+)
+game_state['commands'].append['Look']
+
+take = command(
+    name = "Take",
+    valid_choices = ("Take", "take", "T", "t"),
+)
+game_state['commands'].append['Take']
+
+lis = command(
+    name = "Listen",
+    valid_choices = ("Listen", "listen", "Lis", "lis",),
+)
+game_state['commands'].append['Listen']
+
+ent = command(
+    name = "Enter",
+    valid_choices = ("Enter", "enter", "E", "e"),
+)
+game_state['commands'].append['Enter']
+
+help = command(
+    name = "Help",
+    valid_choices = ("Help", "help", "H", "h"),
+)
+game_state['commands'].append['Help']
+
+back = command(
+    name = "Back",
+    valid_choices = ("Back, back, B, b"),
+)
+game_state['commands'].append['Back']
+
+yes = command(
+    name = "Yes",
+    valid_choices = ("yes", "y"),
+)
+game_state['commands'].append['Yes']
+
+no = command(
+    name = "No",
+    valid_choices = ("no", "n"),
+)
+game_state['commands'].append['No']
+
+die = command(
+    name = "Die",
+    valid_choices = ("die", "Die", "I die", "I Die", "i die", "i Die", "dead", "Dead"),
+)
+game_state['commands'].append['Die']
+
+inventory = command(
+    name = "Inventory",
+    valid_choices = ("Inventory", "inventory", "I", "i", "inv", "Inv"),
+)
+game_state['commands'].append['Inventory']
+
+quit = command(
+    name = "Quit",
+    valid_choices = ("Quit", "quit", "Q", "q"),
+)
+game_state['commands'].append['Quit']
+
+interact = command(
+    name = "Interact",
+    valid_choices = ("Int", "int", "In", "in"),
+)
+game_state['commands'].append['Interact']
+
+door = ("Door", "door", "the door", "The door","the Door", "The Door",
+"Doors", "doors", "the doors", "The doors","the Doors", "The Doors",)
+item = ("Item, item, Items, items")
+roomlis = ("Room", "room", "The Room", "the room", "The room", "the Room")
+
+
+
 class room(object):
 
-    def enter(self):
-        pass
-
+    self.items = []
+    self.enemies = []
+    self.doors = []
 
 class door(room):
 
-
-    def enter(self):
-        pass
+    def __init__(self, name, lis, description):
+        self.name = name
+        self.lis = lis
+        self.description = description
 
 
 class item(room):
+
     def __init__(self, name, description, take_me, valid_choices):
         self.name = name
         self.description = description
@@ -59,18 +116,26 @@ class item(room):
 
 class enemies(room):
 
-    def enter(self):
-        pass
+    def __init__(self, name, description, talk, attack, magic, sneak, die, slay):
+        self.name = name
+        self.description = description
+        self.talk = talk
+        self.attack = attack
+        self.magic = magic
+        self.sneak = sneak
+        self.die = die
+        self.sneak = sneak
 
 
 def new_game():
-    global game_state = {
+    global game_state
+    game_state = {
         "player": {
             "inventory": [],
             "attacks": [], #not sure about this one
             },
         "room": {
-            "lis" =,
+            "lis": "",
             "items": [],
             "doors": [],
             "enemies": [],
@@ -90,11 +155,11 @@ def listen_converter(li_choice):
 
             return game_state['room']['doors'][door]['listen']
 
-        elif li_choice in roomlis
+        elif li_choice in roomlis:
 
             return game_state['room']['lis']
 
-        elif li_choice in back
+        elif li_choice in back:
 
             print "Guess you don't want to hear anything then, back to it."
             return action()
@@ -109,7 +174,7 @@ def entry_converter(e_choice):
 
              return game_state['room']['doors'][door]['enter']
 
-        elif e_choice in back
+        elif e_choice in back:
 
             print "Guess you don't want to go anywhere yet, back to it."
             return action()
@@ -129,7 +194,7 @@ def pickup_converter(t_choice):
                 print "You picked up %s, it has been added to your inventory" % game_state['room'][item]['name']
                 return action()
 
-            elif item == "staff" or "sword" or "cloak" and item in game_state.inventory:
+            elif item == "Staff" or "Sword" or "Cloak" and item in game_state.inventory:
                 print "You have chosen your path! Only one may be taken, move along!"
                 return action()
 
@@ -144,10 +209,6 @@ def pickup_converter(t_choice):
             else:
                 print "You can\'t take that try something else, maybe try \'the item\'."
                 return action()
-
-        else:
-            print "You can\'t take that try something else, maybe try \'the item\'."
-            return action()
 
 def restart():
     restart = raw_input("Would you like to Restart?\n> ")
@@ -184,8 +245,8 @@ def action():
                     print "That is not very helpful. Why don't you try something like yes or no?"
                     return action()
 
-            elif lo_choice in item['look']:
-                print item['look']
+            elif lo_choice in game_state['room'][item]['look']:
+                print items['look']
                 closer = raw_input("Would you like to look closer?").lower()
                 if closer in yes:
                     print items['look']['closer']
@@ -270,14 +331,14 @@ def action():
 def dead(why):
     print why, "You have died!"
     print "GAME OVER!"
-        restart = raw_input("Would you like to Restart?\n> ")
-        if restart in yes:
-            new_game()
-        elif restart in no:
-            exit("Good Bye!")
-        else:
-            print "I will take that as a no."
-            exit("Good Bye!")
+    restart = raw_input("Would you like to Restart?\n> ")
+    if restart in yes:
+        new_game()
+    elif restart in no:
+        exit("Good Bye!")
+    else:
+        print "I will take that as a no."
+        exit("Good Bye!")
 
 def entrance_hall():
     print "You wake up to find yourself in a large chamber lit by torches."
@@ -312,7 +373,7 @@ def entrance_hall():
         take_me = "The torches blaze up, wind howles through the room, and lightning strikes the crystal atop it! You got The Staff of Power!",
         valid_choices = ("Staff", "staff", "A Staff", "a Staff", "A staff", "a staff", "The Staff", "the Staff", "The staff", "the staff"),
     )
-    game_state['room']['items'].append(staff)
+    game_state['room']['items'].append['Staff']
 
     sword = Item(
         name = "Sanguineus",
@@ -320,7 +381,7 @@ def entrance_hall():
         take_me = " ",
         valid_choices = ("Sword", "sword", "A Sword", "a Sword", "A sword", "a sword", "The Sword", "the Sword", "The sword", "the sword"),
     )
-    game_state['room']['items'].append(sword)
+    game_state['room']['items'].append['Sword']
 
     cloak = Item(
         name = "Nigh",
@@ -328,7 +389,7 @@ def entrance_hall():
         take_me = " ",
         valid_choices = ("Cloak", "cloak", "A Cloak", "a Cloak", "A cloak", "a cloak", "The Cloak", "the Cloak", "The cloak", "the cloak"),
     )
-    game_state['room']['items'].append(cloak)
+    game_state['room']['items'].append['Cloak']
 
     closerlookdoors = ("The Black door is so dark you have a hard time telling it is even there.",
                     "The Red door appears as if it is on fire and is even a little warm to the touch.",
