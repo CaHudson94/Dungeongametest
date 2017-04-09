@@ -18,17 +18,20 @@ no = ("no", "n")
 die = ("die", "Die", "I die", "I Die", "i die", "i Die", "dead", "Dead")
 inventory = ("Inventory", "inventory", "I", "i")
 quit = ("Quit", "quit", "Q", "q", "Exit", "exit", "E", "e")
+game_state = {}
+
 
 class room(object):
 
     def enter(self):
+        pass
 
 
 class doors(room):
+    pass
 
 
-
-class Items(room):
+class Item(room):
     def __init__(self, name, description, take_me, valid_choices):
         self.name = name
         self.description = description
@@ -37,42 +40,45 @@ class Items(room):
 
 
 class enemies(room):
+    pass
+
 
 def new_game():
-    dragon_in_room = False
-
-    while pendent not in game_state.player.inventory
-        unburnt = False
-
+    global game_state
     game_state = {
         "player": {
-            "inventory": []
-            "attacks": [] #not sure about this one
-            }
+            "inventory": [],
+            "attacks": [],  # not sure about this one
+        },
         "room": {
-            "items": []
-            "doors": []
-            "enemies": []
-            }
-        }
+            "items": [],
+            "doors": [],
+            "enemies": [],
+        },
+    }
+
+    dragon_in_room = False
+    pendant = Item('', '', '', '',)
+
+    if pendant not in game_state['player']['inventory']:
+        unburnt = False
 
     entrance_hall()
 
 def entry_converter(e_choice):
-    for door in game_state.room.doors():
-        if e_choice in game_state.room.doors.[door].valid_choices:
-
-            return game_state.room.doors.[door].enter
+    for door in game_state['room']['doors']:
+        if e_choice in game_state['room']['doors'][door]['valid_choices']:
+            return game_state['room']['door'][door]['enter']
 
 def pickup_converter(t_choice):
     for item in game_state.room.items():
-        if t_choice in game_state.room.items.[item].valid_choices:
+        if t_choice in game_state['room']['items'][item]['valid_choices']:
 
             if item in game_state.room.items and key not in game_state.inventory:
                 game_state.inventory.append(item)
                 game_state.room.items.remove(item)
                 print(item.take_me)
-                print "You picked up %s, it has been added to your inventory" % game_state.room.[item].name
+                print "You picked up %s, it has been added to your inventory" % game_state['room'][item]['name']
                 return action()
 
             elif item == "staff" or "sword" or "cloak" and item in game_state.inventory:
@@ -93,13 +99,13 @@ def pickup_converter(t_choice):
 
 def restart():
     restart = raw_input("Would you like to Restart?\n> ")
-        if restart in yes:
-            new_game()
-        elif restart in no:
-            exit("Good Bye!")
-        else:
-            print "I will take that as a no."
-            exit("Good Bye!")
+    if restart in yes:
+        new_game()
+    elif restart in no:
+        exit("Good Bye!")
+    else:
+        print "I will take that as a no."
+        exit("Good Bye!")
 
 def action():
     while True:
@@ -123,7 +129,7 @@ def action():
                     print "That is not very helpful. Why don't you try something like yes or no?"
                     return action()
 
-            elif lo_choice in items.look:
+            elif lo_choice in game_state['room']['items']:
                 print items.look
                 closer = raw_input("Would you like to look closer?").lower()
                 if closer in yes:
@@ -166,15 +172,15 @@ def action():
             print "Yes, No, Back, Quit, and Die."
             action()
 
-        elif choice in inventory
-            print game_state.inventory
+        elif choice in inventory:
+            print game_state['player']['inventory']
 
         elif choice in die:
             if dragon_in_room and unburnt:
                 print "You decide to die here but there is a dragon, it tries to toast you but fails so it decides to eat you instead!"
                 print "GAME OVER!"
                 return restart()
-            elif dragon_in_room
+            elif dragon_in_room:
                 print "You decide to die here but there is a dragon, it toasts you alive like a human shaped marshmallow!"
                 print "GAME OVER!"
                 return restart()
@@ -205,14 +211,14 @@ def action():
 def dead(why):
     print why, "You have died!"
     print "GAME OVER!"
-        restart = raw_input("Would you like to Restart?\n> ")
-        if restart in yes:
-            new_game()
-        elif restart in no:
-            exit("Good Bye!")
-        else:
-            print "I will take that as a no."
-            exit("Good Bye!")
+    restart = raw_input("Would you like to Restart?\n> ")
+    if restart in yes:
+        new_game()
+    elif restart in no:
+        exit("Good Bye!")
+    else:
+        print "I will take that as a no."
+        exit("Good Bye!")
 
 def entrance_hall():
     print "You wake up to find yourself in a large chamber lit by torches."
@@ -242,34 +248,31 @@ def entrance_hall():
     rdoor = goblin_room()
 
     staff = Item(
-    name = "The Staff of Power"
-    description = ("The Staff is tall and twisted, made of a deep dark wood and topped with an ever changing crystal.",
-                    " It exudes power, pulsing and searing against the air.")
-    take_me = "The torches blaze up, wind howles through the room, and lightning strikes the crystal atop it! You got The Staff of Power!"
-    valid_choices = ("Staff", "staff", "A Staff", "a Staff", "A staff", "a staff", "The Staff",
-    "the Staff", "The staff", "the staff")
+        name = "The Staff of Power",
+        description = "The Staff is tall and twisted, made of a deep dark wood and topped with an ever changing crystal. It exudes power, pulsing and searing against the air.",
+        take_me = "The torches blaze up, wind howles through the room, and lightning strikes the crystal atop it! You got The Staff of Power!",
+        valid_choices = ("Staff", "staff", "A Staff", "a Staff", "A staff", "a staff", "The Staff", "the Staff", "The staff", "the staff"),
     )
-    game_state.room.keys["staff"] = staff
+
+    game_state['room']['items'].append(staff)
 
     sword = Item(
-    name = "Sanguineus"
-    description = "The Sword double edged and roughly three feet long but oddly light, it has intricit etchings on either side of the blades face. ",
-    " Even with the fine detail their isn't a single blemish on it, you get the feeling you couldn't break it if you tried."
-    take_me = ""
-    valid_choices = ("Sword", "sword", "A Sword", "a Sword", "A sword", "a sword", "The Sword",
-    "the Sword", "The sword", "the sword")
+        name = "Sanguineus",
+        description = "The Sword double edged and roughly three feet long but oddly light, it has intricit etchings on either side of the blades face. Even with the fine detail their isn't a single blemish on it, you get the feeling you couldn't break it if you tried.",
+        take_me = "",
+        valid_choices = ("Sword", "sword", "A Sword", "a Sword", "A sword", "a sword", "The Sword", "the Sword", "The sword", "the sword"),
     )
-    game_state.room.keys.["sword"] = sword
+
+    game_state['room']['items'].append(sword)
 
     cloak = Item(
-    name = "Nigh"
-    description = "The Cloak is cool and warm, black and shimmering and all colors at once. At times you can't even really see it.",
-    "It is a bit unnearving while also being calming, almost protective."
-    take_me =
-    valid_choices = ("Cloak", "cloak", "A Cloak", "a Cloak", "A cloak", "a cloak", "The Cloak",
-    "the Cloak", "The cloak", "the cloak")
+        name = "Nigh",
+        description = "The Cloak is cool and warm, black and shimmering and all colors at once. At times you can't even really see it. It is a bit unnearving while also being calming, almost protective.",
+        take_me = "",
+        valid_choices = ("Cloak", "cloak", "A Cloak", "a Cloak", "A cloak", "a cloak", "The Cloak", "the Cloak", "The cloak", "the cloak"),
     )
-    game_state.room.keys.["cloak"] = cloak
+
+    game_state['room']['items'].append(cloak)
 
     closerlookdoors = ("The Black door is so dark you have a hard time telling it is even there.",
                     "The Red door appears as if it is on fire and is even a little warm to the touch.",
@@ -287,12 +290,14 @@ def entrance_hall():
 
     door3 = ("Listening at the Silver door you hear running water, an odd snorting, and a very faint, very distant mixture of rumbling")
 
-    do_loop()
+    action()
 
 def troll_room():
+    pass
 
 
 def goblin_room():
+    pass
 
 
 def lava_room():
@@ -301,7 +306,7 @@ def lava_room():
 
 def infinite_room():
     entries = 0
-    while entries < 10 and entries > 1 and
+    if entries < 10 and entries > 1:
         print "Just as the room before..."
 
 
@@ -309,7 +314,7 @@ def infinite_room():
     print "It is devoid of all color, life or light. It is not dark simply black."
     print "Even so you can see a door opposite you and the door that has just swung shut behind you."
     print "There is nothing here in fact the room is it self nothing."
-    return do_loop()
+    return action()
 
     closerlookdoors = ("Just a simple plain brown wood door nothing descipt or unique about it or it's handle.")
 
@@ -322,10 +327,10 @@ def infinite_room():
 
 def dragon_chamber():
     dragon = True
-    print
+    print ''
 
 def treasure_room():
-    print
+    print ''
 
 
 new_game()
