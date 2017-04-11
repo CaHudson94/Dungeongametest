@@ -7,81 +7,81 @@ from sys import exit
 game_state = {}
 
 
-class command(list):
+class Command(list):
 
 
     def __init__(self, name, valid_choices):
         self.name = name
         self.valid_choices = valid_choices
 
-look = command(
+look = Command(
     name = 'Look',
     valid_choices = ('Look', 'look', 'L', 'l', 'Lo', 'lo'),
 )
 game_state['commands'].append['Look']
 
-take = command(
+take = Command(
     name = 'Take',
     valid_choices = ('Take', 'take', 'T', 't'),
 )
 game_state['commands'].append['Take']
 
-lis = command(
+lis = Command(
     name = 'Listen',
     valid_choices = ('Listen', 'listen', 'Lis', 'lis',),
 )
 game_state['commands'].append['Listen']
 
-ent = command(
+ent = Command(
     name = 'Enter',
     valid_choices = ('Enter', 'enter', 'E', 'e'),
 )
 game_state['commands'].append['Enter']
 
-help = command(
+help = Command(
     name = 'Help',
     valid_choices = ('Help', 'help', 'H', 'h'),
 )
 game_state['commands'].append['Help']
 
-back = command(
+back = Command(
     name = 'Back',
     valid_choices = ('Back', 'back', 'B', 'b'),
 )
 game_state['commands'].append['Back']
 
-yes = command(
+yes = Command(
     name = 'Yes',
     valid_choices = ('yes', 'y'),
 )
 game_state['commands'].append['Yes']
 
-no = command(
+no = Command(
     name = 'No',
     valid_choices = ('no', 'n'),
 )
 game_state['commands'].append['No']
 
-die = command(
+die = Command(
     name = 'Die',
     valid_choices = ('die', 'Die', 'I die', 'I Die', 'i die',
 'i Die', 'dead', 'Dead'),
 )
 game_state['commands'].append['Die']
 
-inventory = command(
+inventory = Command(
     name = 'Inventory',
     valid_choices = ('Inventory', 'inventory', 'I', 'i', 'inv', 'Inv'),
 )
 game_state['commands'].append['Inventory']
 
-quit = command(
+quit = Command(
     name = 'Quit',
     valid_choices = ('Quit', 'quit', 'Q', 'q'),
 )
 game_state['commands'].append['Quit']
 
-interact = command(
+interact = Command(
     name = 'Interact',
     valid_choices = ('Int', 'int', 'In', 'in'),
 )
@@ -92,21 +92,23 @@ door = ('Door', 'door', 'the door', 'The door','the Door', 'The Door',
 item = ('Item', 'item', 'Items', 'items')
 roomlis = ('Room', 'room', 'The Room', 'the room', 'The room', 'the Room')
 
-class room(object):
+
+class Room(object):
 
     self.items = []
     self.enemies = []
     self.doors = []
 
 
-class door(room):
+class Door(room):
 
     def __init__(self, name, lis, description):
         self.name = name
         self.lis = lis
         self.description = description
 
-class item(room):
+
+class Item(room):
 
     def __init__(self, name, description, take_me, valid_choices):
         self.name = name
@@ -114,7 +116,8 @@ class item(room):
         self.take_me = take_me
         self.valid_choices = valid_choices
 
-class enemies(room):
+
+class Enemy(room):
 
     def __init__(self, name, description, talk, attack, magic, sneak, die, slay):
         self.name = name
@@ -194,109 +197,110 @@ def pickup_converter(t_choice):
                 game_state.inventory.append(item)
                 game_state.room.items.remove(item)
                 print (item.take_me)
-                print "You picked up %s, \
-it has been added to your inventory" % game_state['room'][item]['name']
+                print 'You picked up %s, \
+it has been added to your inventory' % game_state['room'][item]['name']
                 return action()
 
-            elif item == "Staff" or "Sword" or "Cloak" and item in game_state.inventory:
-                print "You have chosen your path! Only one may be taken, move along!"
+            elif item == 'Staff' or 'Sword' or 'Cloak' and item in game_state.inventory:
+                print 'You have chosen your path! Only one may be taken, move along!'
                 return action()
 
             elif item in game_state.inventory:
-                print ("You already have that.")
+                print ('You already have that.')
                 return action()
 
             elif t_choice in back:
-                print "Guess you don\'t want any of this junk, back to it."
+                print 'Guess you don\'t want any of this junk, back to it.'
                 return action()
 
             else:
-                print "You can\'t take that try something else, maybe try \'the item\'."
+                print 'You can\'t take that try something else, maybe try \'the item\'.''
                 return action()
 
 
 def restart():
-    restart = raw_input("Would you like to Restart?\n> ")
+    restart = raw_input('Would you like to Restart?\n> ')
     if restart in yes:
         new_game()
     elif restart in no:
-        exit("Good Bye!")
+        exit('Good Bye!')
     elif restart in back:
-        print ("Guess you would like to keep going then.")
+        print ('Guess you would like to keep going then.')
         return action()
     else:
-        print "I will take that as a no."
-        exit("Good Bye!")
+        print ('I will take that as a no.')
+        exit('Good Bye!')
 
 
 def action():
     while True:
-        choice = raw_input("What action would you like to take?\n> ")
+        choice = raw_input('What action would you like to take?\n> ')
 
         if choice in look:
-            lo_choice = raw_input("What would you like to look at?\n> ")
+            lo_choice = raw_input('What would you like to look at?\n> ')
 
             if lo_choice in door:
                 print game_state['room']['doors']['look']
-                closer = raw_input("Would you like to look closer?").lower()
+                closer = raw_input('Would you like to look closer?').lower()
                 if closer in yes:
                     print game_state['room']['doors']['look']['closer']
                 elif closer in no:
-                    print "Alright back to it then."
+                    print 'Alright back to it then.'
                     return action()
                 elif closer in back:
-                    print "Guess you don't need to look",
-                    print "at anything, back to it."
+                    print 'Guess you don\'t need to look \
+at anything, back to it.'
                     return action()
                 else:
-                    print "That is not very helpful. Why don't you try",
-                    print " something like yes or no?"
+                    print 'That is not very helpful. Why don\'t you try \
+something like yes or no?'
                     return action()
 
             elif lo_choice in game_state['room'][item]['look']:
                 print items['look']
-                closer = raw_input("Would you like to look closer?").lower()
+                closer = raw_input('Would you like to look closer?').lower()
                 if closer in yes:
                     print items['look']['closer']
                 elif closer in no:
-                    print "Alright back to it then."
+                    print 'Alright back to it then.'
                     return action()
                 elif closer in back:
-                    print "Guess you don't need to look",
-                    print "at anything, back to it."
+                    print 'Guess you don\'t need to look \
+at anything, back to it.'
                     return action()
                 else:
-                    print "That is not very helpful. Why don't you try",
-                    print " something like yes or no?"
+                    print 'That is not very helpful. Why don\'t you try \
+something like yes or no?'
                     return action()
 
             elif lo_choice in back:
-                print "Guess you don't need to look at anything, back to it."
+                print 'Guess you don\'t need to look at anything, back to it.'
                 return action()
 
             else:
-                print "That is not helpful! next time try looking",
-                print " at something in the room or just go back..."
+                print 'That is not helpful! next time try looking \
+at something in the room or just go back...'
                 return action()
 
         elif choice in take:
-            t_choice = raw_input("What would you like to take?\n> ")
+            t_choice = raw_input('What would you like to take?\n> ')
             pickup_converter()
 
         elif choice in lis:
-            li_choice = raw_input("What would you like to listen to?\n> ")
+            li_choice = raw_input('What would you like to listen to?\n> ')
             listen_converter(li_choice)
 
         elif choice in ent:
-            e_choice = raw_input("Which door would you",
-                        " like to enter?\n> ").lower()
+            e_choice = raw_input('Which door would you \
+like to enter?\n> ').lower()
             entry_converter()
 
         elif choice in interact:
-            int_choice = raw_input("How would you like to interact with this creature?\n> ")
+            int_choice = raw_input('How would you like to interact \
+with this creature?\n> ')
 
         elif choice in help:
-            print "Things you can do: "
+            print 'Things you can do: '
             print game_state['commands']
             return action()
 
@@ -305,81 +309,78 @@ def action():
 
         elif choice in die:
             if dragon_in_room and unburnt:
-                print "You decide to die here but there is a dragon, \
-it tries to toast you but fails so it decides to eat you instead!"
-                print "GAME OVER!"
+                print 'You decide to die here but there is a dragon, \
+it tries to toast you but fails so it decides to eat you instead!'
+                print 'GAME OVER!'
                 return restart()
             elif dragon_in_room:
-                print "You decide to die here but there is a dragon, \
-it toasts you alive like a human shaped marshmallow!"
-                print "GAME OVER!"
+                print 'You decide to die here but there is a dragon, \
+it toasts you alive like a human shaped marshmallow!'
+                print 'GAME OVER!'
                 return restart()
             else:
-                print "I don't know why but you chose to die, your neck snaps!"
-                print "GAME OVER!"
+                print 'I don\'t know why but you chose to die, your neck snaps!'
+                print 'GAME OVER!'
                 return restart()
 
         elif choice in quit:
-            check = raw_input("Are you sure you would like to quit?\n> ").lower()
+            check = raw_input('Are you sure you would like to quit?\n> ').lower()
 
             if check in yes:
-                exit("Good Bye!")
+                exit('Good Bye!')
 
             elif check in no:
-                print "Alright back to the game then!"
+                print 'Alright back to the game then!'
                 return action()
 
             elif check in back:
-                print "Alright back to the game then!"
+                print 'Alright back to the game then!'
                 return action()
 
             else:
-                print "It's a simple yes or no question..."
-                print "You know what just die instead!"
-                dead("Stupidity was your end")
+                print 'It\'s a simple yes or no question...'
+                print 'You know what, just die instead!'
+                dead('Stupidity was your end')
 
         else:
-            print "That is not very helpful. Look around or something! Or ask for help?"
+            print 'That is not very helpful. Look around or something! Or ask for help?'
             return action()
 
 
 def dead(why):
-    print why, "You have died!"
-    print "GAME OVER!"
-    restart = raw_input("Would you like to Restart?\n> ")
+    print why, 'You have died!'
+    print 'GAME OVER!'
+    restart = raw_input('Would you like to Restart?\n> ')
     if restart in yes:
         new_game()
     elif restart in no:
-        exit("Good Bye!")
+        exit('Good Bye!')
     else:
-        print "I will take that as a no."
-        exit("Good Bye!")
+        print 'I will take that as a no.'
+        exit('Good Bye!')
 
 
 def entrance_hall():
     print "\n\n\n"
     print "-" * 100
-    print "You wake up to find yourself in a large chamber lit by torches."
-    print "Looking around you see three doors and",
-    print "three items near them you can't make out."
-    print "Moving forward in the room a voice speaks",
-    print "to you from nowhere and everywhere."
-    print "'Welcome to The Trove!'"
-    print "'Here you will find many things.'"
-    print "'You will have only your wit, body, and the treasures of",
-    print "The Trove to depend on...'"
-    print "'Make your choices wisely as your fate is in your own hands.'"
-    print "'Will you find the path to freedom or",
-    print "fail as so many who came before...'"
-    print "'Now go!'"
-    print "\nFor now you may do a few things:"
-    print "Use enter to go through doors."
-    print "Use listen to hear behind a door."
-    print "Use take to pick up items."
-    print "Use look to look at things(usually an item(s) or door(s))."
-    print "If you would like to see what you have use Inventory or I."
-    print "Use back to make a different choice."
-
+    print """
+You wake up to find yourself in a large chamber lit by torches.
+Looking around you see three doors and three items near them you can't make out.
+Moving forward in the room a voice speaks to you from nowhere and everywhere.
+'Welcome to The Trove!'
+'Here you will find many things.'
+'You will have only your wit, body, and the treasures of The Trove to depend on...'
+'Make your choices wisely as your fate is in your own hands.'
+'Will you find the path to freedom or fail as so many who came before...'
+'Now go!'
+\nFor now you may do a few things:
+Use enter to go through doors.
+Use listen to hear behind a door.
+Use take to pick up items.
+Use look to look at things(usually an item(s) or door(s)).
+If you would like to see what you have use Inventory or I.
+Use back to make a different choice.
+"""
     doors = ("A Black door", "A Red door", "A Silver door")
     door1 = ("black door", "the black door", "a black door")
     door2 = ("red door", "the red door", "a red door")
@@ -404,11 +405,11 @@ def entrance_hall():
 
     sword = Item(
         name = 'Sanguineus',
-        description = '''The Sword double edged and roughly three feet long,\
+        description = """The Sword double edged and roughly three feet long,\
         but oddly light, it has intricit etchings on either side\
         of the blades face. Even with the fine detail their isn't\
         a single blemish on it, you get the feeling you couldn't break\
-        it if you tried.''',
+        it if you tried.""",
         take_me = ' ',
         valid_choices = ("Sword", "sword", "A Sword", "a Sword", "A sword", "a sword", "The Sword", "the Sword", "The sword", "the sword"),
     )
@@ -442,7 +443,7 @@ def entrance_hall():
 
 
 def troll_room():
-    
+
     pass
 
 
