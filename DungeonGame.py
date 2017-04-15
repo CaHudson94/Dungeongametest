@@ -5,7 +5,10 @@
 from sys import exit
 
 game_state = {}
-
+dragon =
+unburnt =
+victory =
+game_over =
 
 class Command(list):
 
@@ -120,15 +123,34 @@ class Item(room):
 
 class Enemy(room):
 
-    def __init__(self, name, description, listen, interact, slay_txt, die_txt, item, item_txt):
+    def __init__(self, name, description, listen, Sword, Staff, Cloak, slay_txt, die_txt, item, item_txt):
         self.name = name
         self.description = description
         self.listen = listen
-        self.interact = interact
+        self.Sword = Sword
+        self.Staff = Staff
+        self.Cloak = Cloak
         self.slay_text = slay_txt
         self.die_text = die_txt
         self.item = item
         self.item_txt = item_txt
+
+    def write(self):
+        global game_state
+        game_state['room']['enemies']['name']['']
+        game_state['room']['enemies']['name'].append(self.name)
+        game_state['room']['enemies']['description']['']
+        game_state['room']['enemies']['description'].append(self.description)
+        game_state['room']['enemies']['listen']['']
+        game_state['room']['enemies']['listen'].append(self.listen)
+        game_state['player']['interactions']['Sword']['']
+        game_state['player']['interactions']['Sword'].append(self.Sword)
+        game_state['player']['interactions']['Staff']['']
+        game_state['player']['interactions']['Staff'].append(self.Staff)
+        game_state['player']['interactions']['Cloak']['']
+        game_state['player']['interactions']['Cloak'].append(self.Cloak)
+        game_state['dead']['']
+        game_state['dead'].append(self.die_txt)
 
     def slay(self):
         global game_state
@@ -137,30 +159,46 @@ class Enemy(room):
         print self.item_txt
 
     def die(self):
-        dead(self.die_txt)
+        global game_over
+        game_over = True
 
 
 def new_game():
     global game_state
-    game_over = False
+    global dragon
+    global unburnt
+    global victory
+    global game_over
     game_state = {
         'player': {
             'inventory': [],
-            'interaction': [], #not sure about this one
+            'interactions': {
+                'Sword': [],
+                'Staff': [],
+                'Cloak': [],
+                }, #not sure about this one
             },
         'room': {
-            'listen': '',
+            'listen': [],
             'items': {},
             'doors': {},
-            'enemies': [],
+            'enemies': {
+                'name': [],
+                'description': [],
+                'listen': [],
+                },
             },
-        'commands':[],
-        'dead':[],
+        'commands': [],
+        'dead': [],
         }
 
     dragon = False
 
     unburnt = False
+
+    victory = False
+
+    game_over = False
 
     entrance_hall()
 
@@ -380,7 +418,6 @@ it toasts you alive like a human shaped marshmallow!'
             print 'That is not very helpful. Look around or something! Or ask for help?'
 
     print 'GAME OVER!'
-    Victory = False
         if victory:
             print 'You have slain the dragon and escaped the dungeon!'
             print 'Congratulations on your successful journey!'
@@ -436,7 +473,7 @@ Use back to make a different choice.
         cdoor = lava_room()
         rdoor = goblin_room()
 
-    staff = Item(
+    Staff = Item(
         name = 'The Staff of Power',
         description = """
 The Staff is tall and twisted, \
@@ -453,7 +490,7 @@ You got The Staff of Power!
     )
     game_state['room']['items'].append['Staff']
 
-    sword = Item(
+    Sword = Item(
         name = 'Sanguineus',
         description = """
 The Sword is double edged and roughly three feet long, \
@@ -473,7 +510,7 @@ It's a perfect fit, but why wouldn't it be.
     )
     game_state['room']['items'].append['Sword']
 
-    cloak = Item(
+    Cloak = Item(
         name = 'Nigh',
         description = """
 The Cloak is cool and warm, black and shimmering like a moon lit pool, \
