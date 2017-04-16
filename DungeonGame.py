@@ -5,10 +5,10 @@
 from sys import exit
 
 game_state = {}
-dragon =
-unburnt =
-victory =
-game_over =
+dragon = None
+unburnt = None
+victory = None
+game_over = None
 
 class Command(list):
 
@@ -89,6 +89,24 @@ interact = Command(
     valid_choices = ('Int', 'int', 'In', 'in'),
 )
 game_state['commands'].append['Interact']
+
+use_sword = Command(
+    name = 'Use Sword',
+    valid_choices = ('Use Sword', 'use sword', 'Use sword', 'use Sword'),
+)
+game_state['commands'].append['Use Sword']
+
+use_staff = Command(
+    name = 'Use Staff',
+    valid_choices = ('Use Staff', 'use staff', 'Use staff', 'use Staff'),
+)
+game_state['commands'].append['Use Staff']
+
+use_cloak = Command(
+    name = 'Use Cloak',
+    valid_choices = ('Use Cloak', 'use cloak', 'Use cloak', 'use Cloak'),
+)
+game_state['commands'].append['Use Cloak']
 
 door = ('Door', 'door', 'the door', 'The door','the Door', 'The Door',
 'Doors', 'doors', 'the doors', 'The doors','the Doors', 'The Doors',)
@@ -204,6 +222,7 @@ def new_game():
 
 
 def look_converter(look):
+    global game_state
     if look in door:
         print game_state['room']['doors']['look']
         closer = raw_input('Would you like to look closer?').lower()
@@ -247,36 +266,41 @@ in the room or just go back...'
 
 
 def pickup_converter(pickup):
-    for item in game_state.room.items():
+    global game_state
+    for item in game_state['room']['items']:
         if pickup in game_state['room']['items'][item]['valid_choices']:
 
-            if item in game_state.room.items and key not in game_state.inventory:
-                game_state.inventory.append(item)
-                game_state.room.items.remove(item)
+            if item in game_state['room']['items'] and key not in game_state['inventory']:
+                game_state['inventory'].append(item)
+                game_state['room']['items'].remove(item)
                 print (item.take_me)
                 print 'You picked up %s, it has been added to your \
 inventory' % game_state['room'][item]['name']
 
-            elif item == 'Staff' or 'Sword' or 'Cloak' and item in game_state.inventory:
+            elif item == 'Staff' or 'Sword' or 'Cloak' and item in game_state['inventory']:
                 print 'You have chosen your path! Only one may be taken, move along!'
 
-            elif item in game_state.inventory:
+            elif item in game_state['inventory']:
                 print ('You already have that.')
 
             elif pickup in back:
                 print 'Guess you don\'t want any of this junk, back to it.'
 
             else:
-                print 'You can\'t take that try something else, maybe try \'the item\'.''
+                print 'You can\'t take that try something else, maybe try \'the item\'.'
 
 
 def listen_converter(listen):
+    global game_state
     for door in game_state['room']['doors']:
         if listen in game_state['room']['doors'][door]['valid_choices']:
             print game_state['room']['doors'][door]['listen']
 
         elif listen in roomlis:
             print game_state['room']['listen']
+
+        elif listen in enemy:
+            print game_state['room']['enemies']['listen']
 
         elif listen in back:
             print 'Guess you don\'t want to hear anything then, back to it.'
@@ -286,6 +310,7 @@ def listen_converter(listen):
 
 
 def entry_converter(enter):
+    global game_state
     for door in game_state['room']['doors']:
         if enter in game_state['room']['doors'][door]['valid_choices']:
              return game_state['room']['doors'][door]['enter']
@@ -300,19 +325,21 @@ def entry_converter(enter):
 
 
 def ineract_converter(interact):
-    for enemy in game_state['room']['enemies']
-        if interact in game_state['room']['enemies'][enemy]['interact']['valid_choices']:
-            return game_state['room']['enemies'][enemy]['slay']
-
-        elif interact in listen:
-            print game_state['room']['enemies'][enemy]['listen']
+    global game_state
+    global game_over
+    for interaction in game_state['commands']:
+        if interact in game_state['commands'][interaction]['valid_choices']:
+            return game_state['player']['interactions'][interaction]['slay']
 
         elif interact in back:
             print 'Guess you don\'t want anything to do with this thing.'
             print 'Back to it then!'
 
         else:
-            dead(game_state['room']['enemies'][enemy]['die'])
+            print 'You tried to do something, I am no really sure what.'
+            print 'Whatever it was just got you killed though.'
+            print game_state['dead']
+            game_over = True
 
 
 def command_prompt(yes_no):
@@ -363,6 +390,9 @@ def restart():
 
 
 def action():
+    global game_over
+    global victory
+    global game_state
     while game_over == False:
         choice = raw_input('What action would you like to take?\n> ')
 
