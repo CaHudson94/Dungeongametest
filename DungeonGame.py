@@ -123,11 +123,12 @@ class Room(object):
 
 class Door(room):
 
-    def __init__(self, name, listen, description, enter):
+    def __init__(self, name, listen, description, enter, valid_choices):
         self.name = name
         self.listen = listen
         self.description = description
         self.enter = enter
+        self.valid_choices = valid_choices
 
 
 class Item(room):
@@ -141,7 +142,8 @@ class Item(room):
 
 class Enemy(room):
 
-    def __init__(self, name, description, listen, Sword, Staff, Cloak, slay_txt, die_txt, item, item_txt):
+    def __init__(self, name, description, listen, Sword, Staff, Cloak,
+    slay_txt, die_txt, item, item_txt):
         self.name = name
         self.description = description
         self.listen = listen
@@ -329,7 +331,11 @@ def ineract_converter(interact):
     global game_over
     for interaction in game_state['commands']:
         if interact in game_state['commands'][interaction]['valid_choices']:
-            return game_state['player']['interactions'][interaction]['slay']
+            if interaction == use_sword
+
+            elif interaction == use_staff
+
+            elif interaction == use_cloak
 
         elif interact in back:
             print 'Guess you don\'t want anything to do with this thing.'
@@ -471,12 +477,12 @@ it toasts you alive like a human shaped marshmallow!'
                     print 'I will take that as a no.'
                     exit('Good Bye!')
 
-class EntranceHall(room):
 
-    def enter(self):
-        print "\n\n\n"
-        print "-" * 100
-        print """
+def entrance_hall():
+    global game_state
+    print "\n\n\n"
+    print "-" * 100
+    print """
 You wake up to find yourself in a large chamber lit by torches.
 Looking around you see three doors and three items near them you can't make out.
 Moving forward in the room a voice speaks to you from nowhere and everywhere.
@@ -494,90 +500,102 @@ Use look to look at things(usually an item(s) or door(s)).
 If you would like to see what you have use Inventory or I.
 Use back to make a different choice.
 """
-        doors = ("A Black door", "A Red door", "A Silver door")
-        door1 = ("black door", "the black door", "a black door")
-        door2 = ("red door", "the red door", "a red door")
-        door3 = ("silver door", "the silver door", "a silver door")
-        items = ("A Staff", "A Sword", "A Cloak")
-        ldoor = troll_room()
-        cdoor = lava_room()
-        rdoor = goblin_room()
 
-    Staff = Item(
-        name = 'The Staff of Power',
-        description = """
+black_door = Door(
+    name = 'A Black door',
+    listen = 'Listening at the Black door you hear only the slightest, \
+quietest breath of wind and a dull deep set of rumblings, one near and one far.',
+    description = 'The Black door is so dark you have a hard \
+time telling it is even there.',
+    enter = troll_room(),
+    valid_choices = ('black door', 'the black door', 'a black door'),
+)
+game_state['room']['doors'].append['Black door']
+
+red_door = Door(
+    name = 'A Red door',
+    listen = 'Listening at the Red door you hear the crackle of fire, \
+as if from more torches and a deep distant rumble.',
+    description = 'The Red door appears as if it is on fire and \
+is even a little warm to the touch.',
+    enter = lava_room(),
+    valid_choices = ('red door', 'the red door', 'a red door'),
+)
+game_state['room']['doors'].append['Red door']
+
+silver_door = Door(
+    name = 'A Silver door',
+    listen = 'Listening at the Silver door you hear running water, \
+an odd giggling, and a very faint, very distant rumbling',
+    description = 'The Silver door is made of metal and is \
+slightly cool to the touch.',
+    enter = goblin_room(),
+    valid_choices = ('silver door', 'the silver door', 'a silver door'),
+)
+game_state['room']['doors'].append['Silver door']
+
+staff = Item(
+    name = 'The Staff of Power',
+    description = """
 The Staff is tall and twisted, \
 made of a deep dark wood and topped with an ever changing crystal. \
 It exudes power, pulsing and searing against the air.
 """,
-        take_me = """
+    take_me = """
 The torches blaze up, wind howles through the room \
 and lightning strikes the crystal atop it! \
 You got The Staff of Power!
 """,
-        valid_choices = ('Staff', 'staff', 'A Staff', 'a Staff', 'A staff',
-        'a staff', 'The Staff', 'the Staff', 'The staff', 'the staff'),
-    )
-    game_state['room']['items'].append['Staff']
+    valid_choices = ('Staff', 'staff', 'A Staff', 'a Staff', 'A staff',
+    'a staff', 'The Staff', 'the Staff', 'The staff', 'the staff'),
+)
+game_state['room']['items'].append['Staff']
 
-    Sword = Item(
-        name = 'Sanguineus',
-        description = """
+sword = Item(
+    name = 'Sanguineus',
+    description = """
 The Sword is double edged and roughly three feet long, \
 and oddly light for its size, it has intricit etchings on either side \
 of the blades face. Even with the fine detail their isn't \
 a single blemish on it, you get the feeling you couldn't break \
 it if you tried.""",
-        take_me = """
+    take_me = """
 You lift the sword from the ground and the blade almost seems to hum \
 in your hand. You marvel at how well balanced it is and how natural it fits \
 your hand. It feels as though it were made just for you. You look down to \
 find a sheath has appeared on you hip which you slide your new weapon into. \
 It's a perfect fit, but why wouldn't it be.
 """,
-        valid_choices = ('Sword', 'sword', 'A Sword', 'a Sword', 'A sword',
-        'a sword', 'The Sword', 'the Sword', 'The sword', 'the sword'),
-    )
-    game_state['room']['items'].append['Sword']
+    valid_choices = ('Sword', 'sword', 'A Sword', 'a Sword', 'A sword',
+    'a sword', 'The Sword', 'the Sword', 'The sword', 'the sword'),
+)
+game_state['room']['items'].append['Sword']
 
-    Cloak = Item(
-        name = 'Nigh',
-        description = """
+cloak = Item(
+    name = 'Nigh',
+    description = """
 The Cloak is cool and warm, black and shimmering like a moon lit pool, \
 while also all colors at once. At times you can\'t even really see it. \
 Looking at it is a bit unnerving while also calming, it almost feels protective. \
 The cloth is untarnished, softer than a shadow, and carries the\
 faintest smell of the first leaves of fall.
 """,
-        take_me = """
+    take_me = """
 You pick up the cloak and wrap yourself in it. The cloth catches wind and \
 rustles around you. As it settles it seems the sounds around you are clearer, \
 while your breathing and movement seems hushed and almost not even there. \
 You have to strain to hear your own breathing as if any sound coming from \
 beneth the cloak is being hushed.
 """,
-        valid_choices = ('Cloak', 'cloak', 'A Cloak', 'a Cloak', "A cloak", "a cloak", "The Cloak", "the Cloak", "The cloak", "the cloak"),
-    )
-    game_state['room']['items'].append['Cloak']
+    valid_choices = ('Cloak', 'cloak', 'A Cloak', 'a Cloak', "A cloak",
+    "a cloak", "The Cloak", "the Cloak", "The cloak", "the cloak"),
+)
+game_state['room']['items'].append['Cloak']
 
-    closerlookdoors = ("The Black door is so dark you have a hard time telling it is even there.",
-                    "The Red door appears as if it is on fire and is even a little warm to the touch.",
-                    "The Silver door is made of metal and is slightly cool to the touch.")
+    roomlis = 'Listening to the room you hear the torches crackling and \
+a subtle thruming, as if the very air is vibrating.'
 
-    closerlookitems = (staff.description, sword.description, cloak.description)
-
-    roomlis = "Listening to the room you hear the torches crackling and a subtle thruming, as if the very air is vibrating."
-
-    doorlis = (door1, door2, door3)
-
-    door1 = ("Listening at the Black door you hear only the slightest, quietest breath of wind and an unsettling amount of nothing else.")
-
-    door2 = ("Listening at the Red door you hear the crackle of fire, as if from more torches and a deep distant rumble.")
-
-    door3 = ("Listening at the Silver door you hear running water, an odd snorting, and a very faint, very distant mixture of rumbling")
-
-    return action()
-
+action()
 
 def troll_room():
 
