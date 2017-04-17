@@ -57,12 +57,25 @@ class Enemy(Room):
         self.description = description
         self.listen = listen
         self.Sword = Sword
+            if Sword == 'slay'
+                return Enemy.slay()
+            else:
+                return Enemy.die()
         self.Staff = Staff
+            if Staff == 'slay'
+                return Enemy.slay()
+            else:
+                return Enemy.die()
         self.Cloak = Cloak
+            if Cloak == 'slay'
+                return Enemy.slay()
+            else:
+                return Enemy.die()
         self.slay_text = slay_txt
         self.die_text = die_txt
         self.item = item
         self.item_txt = item_txt
+
 
     def write(self):
         global game_state
@@ -292,7 +305,7 @@ def entry_converter(enter):
     global game_state
     for door in game_state['room']['doors']:
         if enter in game_state['room']['doors'][door]['valid_choices']:
-             return game_state['room']['doors'][door]['enter']
+             return game_state['room']['doors'][door]['enter']()
 
         elif enter in back:
             print 'Guess you don\'t want to go anywhere yet, back to it.'
@@ -487,7 +500,7 @@ Use back to make a different choice.
 quietest breath of wind and a dull deep set of rumblings, one near and one far.',
         description = 'The Black door is so dark you have a hard \
 time telling it is even there.',
-        enter = troll_room(),
+        enter = troll_room,
         valid_choices = ('black door', 'the black door', 'a black door'),
 )
 
@@ -497,7 +510,7 @@ time telling it is even there.',
 as if from more torches and a deep distant rumble.',
         description = 'The Red door appears as if it is on fire and \
 is even a little warm to the touch.',
-        enter = lava_room(),
+        enter = lava_room,
         valid_choices = ('red door', 'the red door', 'a red door'),
 )
 
@@ -507,7 +520,7 @@ is even a little warm to the touch.',
 an odd giggling, and a very faint, very distant rumbling',
         description = 'The Silver door is made of metal and is \
 slightly cool to the touch.',
-        enter = goblin_room(),
+        enter = goblin_room,
         valid_choices = ('silver door', 'the silver door', 'a silver door'),
 )
 
