@@ -66,20 +66,13 @@ class Enemy(Room):
 
     def write(self):
         global game_state
-        game_state['room']['enemies']['name']['']
-        game_state['room']['enemies']['name'].append(self.name)
-        game_state['room']['enemies']['description']['']
-        game_state['room']['enemies']['description'].append(self.description)
-        game_state['room']['enemies']['listen']['']
-        game_state['room']['enemies']['listen'].append(self.listen)
-        game_state['player']['interactions']['Sword']['']
-        game_state['player']['interactions']['Sword'].append(self.Sword)
-        game_state['player']['interactions']['Staff']['']
-        game_state['player']['interactions']['Staff'].append(self.Staff)
-        game_state['player']['interactions']['Cloak']['']
-        game_state['player']['interactions']['Cloak'].append(self.Cloak)
-        game_state['dead']['']
-        game_state['dead'].append(self.die_txt)
+        game_state['room']['enemies']['name'] = [self.name]
+        game_state['room']['enemies']['description'] = [self.description]
+        game_state['room']['enemies']['listen'] = [self.listen]
+        game_state['player']['interactions']['Sword'] = [self.Sword]
+        game_state['player']['interactions']['Staff'] = [self.Staff]
+        game_state['player']['interactions']['Cloak'] = [self.Cloak]
+        game_state['dead'] = [self.die_txt]
 
     def slay(self):
         global game_state
@@ -90,7 +83,6 @@ class Enemy(Room):
     def die(self):
         global game_over
         game_over = True
-
 
 def new_game():
     global game_state
@@ -117,7 +109,7 @@ def new_game():
                 'listen': [],
                 },
             },
-        'commands': [],
+        'commands': {},
         'dead': [],
         }
 
@@ -129,96 +121,81 @@ def new_game():
 
     game_over = False
 
-    look = Command(
+    game_state['commands']['Look'] = Command(
         name = 'Look',
         valid_choices = ('Look', 'look', 'L', 'l', 'Lo', 'lo'),
     )
-    game_state['commands'].append['Look']
 
-    take = Command(
+    game_state['commands']['Take'] = Command(
         name = 'Take',
         valid_choices = ('Take', 'take', 'T', 't'),
     )
-    game_state['commands'].append['Take']
 
-    listen = Command(
+    game_state['commands']['Listen'] = Command(
         name = 'Listen',
         valid_choices = ('Listen', 'listen', 'Lis', 'lis',),
     )
-    game_state['commands'].append['Listen']
 
-    enter = Command(
+    game_state['commands']['Enter'] = Command(
         name = 'Enter',
         valid_choices = ('Enter', 'enter', 'E', 'e'),
     )
-    game_state['commands'].append['Enter']
 
-    help = Command(
+    game_state['commands']['Help'] = Command(
         name = 'Help',
         valid_choices = ('Help', 'help', 'H', 'h'),
     )
-    game_state['commands'].append['Help']
 
-    back = Command(
+    game_state['commands']['Back'] = Command(
         name = 'Back',
         valid_choices = ('Back', 'back', 'B', 'b'),
     )
-    game_state['commands'].append['Back']
 
-    yes = Command(
+    game_state['commands']['Yes'] = Command(
         name = 'Yes',
         valid_choices = ('yes', 'y'),
     )
-    game_state['commands'].append['Yes']
 
-    no = Command(
+    game_state['commands']['No'] = Command(
         name = 'No',
         valid_choices = ('no', 'n'),
     )
-    game_state['commands'].append['No']
 
-    die = Command(
+    game_state['commands']['Die'] = Command(
         name = 'Die',
         valid_choices = ('die', 'Die', 'I die', 'I Die', 'i die',
         'i Die', 'dead', 'Dead'),
     )
-    game_state['commands'].append['Die']
 
-    inventory = Command(
+    game_state['commands']['Inventory'] = Command(
         name = 'Inventory',
         valid_choices = ('Inventory', 'inventory', 'I', 'i', 'inv', 'Inv'),
     )
-    game_state['commands'].append['Inventory']
 
-    quit = Command(
+    game_state['commands']['Quit'] = Command(
         name = 'Quit',
         valid_choices = ('Quit', 'quit', 'Q', 'q'),
     )
-    game_state['commands'].append['Quit']
 
-    interact = Command(
+    game_state['commands']['Interact'] = Command(
         name = 'Interact',
         valid_choices = ('Int', 'int', 'In', 'in'),
     )
-    game_state['commands'].append['Interact']
 
-    use_sword = Command(
+    game_state['commands']['Use Sword'] = Command(
         name = 'Use Sword',
         valid_choices = ('Use Sword', 'use sword', 'Use sword', 'use Sword'),
     )
-    game_state['commands'].append['Use Sword']
 
-    use_staff = Command(
+    game_state['commands']['Use Staff'] = Command(
         name = 'Use Staff',
         valid_choices = ('Use Staff', 'use staff', 'Use staff', 'use Staff'),
     )
-    game_state['commands'].append['Use Staff']
 
-    use_cloak = Command(
+    game_state['commands']['Use Cloak'] = Command(
         name = 'Use Cloak',
         valid_choices = ('Use Cloak', 'use cloak', 'Use cloak', 'use Cloak'),
     )
-    game_state['commands'].append['Use Cloak']
 
     entrance_hall()
 
@@ -332,20 +309,20 @@ def ineract_converter(interact):
     for interaction in game_state['commands']:
         if interact in game_state['commands'][interaction]['valid_choices']:
             if interaction == use_sword:
-                pass
+                return game_state['player']['interactions']['Sword']
 
             elif interaction == use_staff:
-                pass
+                return game_state['player']['interactions']['Staff']
 
             elif interaction == use_cloak:
-                pass
+                return game_state['player']['interactions']['Cloak']
 
         elif interact in back:
             print 'Guess you don\'t want anything to do with this thing.'
             print 'Back to it then!'
 
         else:
-            print 'You tried to do something, I am no really sure what.'
+            print 'You tried to do something, I am not really sure what.'
             print 'Whatever it was just got you killed though.'
             print game_state['dead']
             game_over = True
@@ -504,7 +481,7 @@ If you would like to see what you have use Inventory or I.
 Use back to make a different choice.
 """
 
-    black_door = Door(
+    game_state['room']['doors']['Black door'] = Door(
         name = 'A Black door',
         listen = 'Listening at the Black door you hear only the slightest, \
 quietest breath of wind and a dull deep set of rumblings, one near and one far.',
@@ -513,9 +490,8 @@ time telling it is even there.',
         enter = troll_room(),
         valid_choices = ('black door', 'the black door', 'a black door'),
 )
-    game_state['room']['doors'].append['Black door']
 
-    red_door = Door(
+    game_state['room']['doors']['Red door'] = Door(
         name = 'A Red door',
         listen = 'Listening at the Red door you hear the crackle of fire, \
 as if from more torches and a deep distant rumble.',
@@ -524,9 +500,8 @@ is even a little warm to the touch.',
         enter = lava_room(),
         valid_choices = ('red door', 'the red door', 'a red door'),
 )
-    game_state['room']['doors'].append['Red door']
 
-    silver_door = Door(
+    game_state['room']['doors']['Silver door'] = Door(
         name = 'A Silver door',
         listen = 'Listening at the Silver door you hear running water, \
 an odd giggling, and a very faint, very distant rumbling',
@@ -535,9 +510,8 @@ slightly cool to the touch.',
         enter = goblin_room(),
         valid_choices = ('silver door', 'the silver door', 'a silver door'),
 )
-    game_state['room']['doors'].append['Silver door']
 
-    staff = Item(
+    game_state['room']['items']['Staff'] = Item(
         name = 'The Staff of Power',
         description = """
 The Staff is tall and twisted, \
@@ -552,9 +526,8 @@ You got The Staff of Power!
         valid_choices = ('Staff', 'staff', 'A Staff', 'a Staff', 'A staff',
 'a staff', 'The Staff', 'the Staff', 'The staff', 'the staff'),
 )
-    game_state['room']['items'].append['Staff']
 
-    sword = Item(
+    game_state['room']['items']['Sword'] = Item(
         name = 'Sanguineus',
         description = """
 The Sword is double edged and roughly three feet long, \
@@ -572,9 +545,8 @@ It's a perfect fit, but why wouldn't it be.
         valid_choices = ('Sword', 'sword', 'A Sword', 'a Sword', 'A sword',
 'a sword', 'The Sword', 'the Sword', 'The sword', 'the sword'),
 )
-    game_state['room']['items'].append['Sword']
 
-    cloak = Item(
+    game_state['room']['items']['Cloak'] = Item(
         name = 'Nigh',
         description = """
 The Cloak is cool and warm, black and shimmering like a moon lit pool, \
@@ -593,7 +565,6 @@ beneth the cloak is being hushed.
         valid_choices = ('Cloak', 'cloak', 'A Cloak', 'a Cloak', "A cloak",
     "a cloak", "The Cloak", "the Cloak", "The cloak", "the cloak"),
 )
-    game_state['room']['items'].append['Cloak']
 
     roomlis = 'Listening to the room you hear the torches crackling and \
 a subtle thruming, as if the very air is vibrating.'
@@ -602,8 +573,19 @@ a subtle thruming, as if the very air is vibrating.'
 
 def troll_room():
 
-    pass
-
+    troll = Enemy(
+        name = 'Troll',
+        description = ' ',
+        listen = ' ',
+        Sword = troll.die(),
+        Staff = troll.die(),
+        Cloak = troll.slay(),
+        slay_txt = '',
+        die_txt = '',
+        item = '',
+        item_txt = '',
+    )
+    troll.write()
 
 def goblin_room():
 
