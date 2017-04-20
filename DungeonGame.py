@@ -47,9 +47,10 @@ class Item(object):
 class Enemy(object):
 
     global game_over
+    global game_state
 
     def __init__(self, name, description, listen, Sword, Staff, Cloak,
-    slay_txt, die_txt, item, item_txt, valid_choices):
+    slay_txt, die_txt, item, item_txt, valid_choices, weapon):
         self.name = name
         self.description = description
         self.listen = listen
@@ -61,25 +62,9 @@ class Enemy(object):
         self.item = item
         self.item_txt = item_txt
         self.valid_choices = valid_choices
-
-# have to sort this bit out
-        if Sword == 'slay':
-            self.Sword = Enemy.slay()
-        elif Sword == 'die':
-            game_over = True
-
-        if Staff == 'slay':
-            self.Staff = Enemy.slay()
-        elif Staff == 'die':
-            game_over = True
-
-        if Cloak == 'slay':
-            self.Cloak = Enemy.slay()
-        elif Cloak == 'die':
-            game_over = True
+        self.weapon = weapon
 
     def write(self):
-        global game_state
         game_state['room']['enemies']['name'] = [self.name]
         game_state['room']['enemies']['description'] = [self.description]
         game_state['room']['enemies']['listen'] = [self.listen]
@@ -89,11 +74,30 @@ class Enemy(object):
         game_state['player']['interactions']['Cloak'] = [self.Cloak]
         game_state['dead'] = [self.die_text]
 
-    def slay(self):
-        global game_state
-        print self.slay_text
-        game_state['room']['items'][self.item]['name'] = self.item
-        print self.item_txt
+    @classmethod
+    def kill_or_die(self):
+
+        if self.weapon == 'sword':
+            if self.Sword == 'slay':
+                print self.slay_text
+                game_state['room']['items'][self.item]['name'] = self.item
+                print self.item_txt
+            elif self.Sword == 'die':
+                game_over = True
+        elif self.weapon == 'staff':
+            if self.Staff == 'slay':
+                print self.slay_text
+                game_state['room']['items'][self.item]['name'] = self.item
+                print self.item_txt
+            elif self.Staff == 'die':
+                game_over = True
+        elif self.weapon == 'cloak':
+            if self.Cloak == 'slay':
+                print self.slay_text
+                game_state['room']['items'][self.item]['name'] = self.item
+                print self.item_txt
+            elif self.Cloak == 'die':
+                game_over = True
 
 def new_game():
     global game_state
@@ -220,7 +224,7 @@ def look_converter(look_choice):
     global game_state
     for door in game_state['room']['doors']:
         if look_choice in game_state['room']['doors'][door].valid_choices:
-            print game_state['room']['doors'][door].glance
+            print '\n', game_state['room']['doors'][door].glance
             closer = raw_input('\nWould you like to look closer?\n> ').lower()
 
             if closer in game_state['commands']['Yes'].valid_choices:
@@ -228,21 +232,21 @@ def look_converter(look_choice):
                 return
 
             elif closer in game_state['commands']['No'].valid_choices:
-                print 'Alright back to it then.'
+                print '\nAlright back to it then.'
                 return
 
             elif closer in game_state['commands']['Back'].valid_choices:
-                print 'Guess you don\'t need to look at anything, back to it.'
+                print '\nGuess you don\'t need to look at anything, back to it.'
                 return
 
             else:
-                print 'That is not very helpful. Why don\'t you try \
+                print '\nThat is not very helpful. Why don\'t you try \
 something like yes or no?'
                 return
 
     for item in game_state['room']['items']:
         if look_choice in game_state['room']['items'][item].valid_choices:
-            print game_state['room']['items'][item].item_look
+            print '\n', game_state['room']['items'][item].item_look
             closer = raw_input('\nWould you like to look closer?\n> ').lower()
 
             if closer in game_state['commands']['Yes'].valid_choices:
@@ -250,28 +254,28 @@ something like yes or no?'
                 return
 
             elif closer in game_state['commands']['No'].valid_choices:
-                print 'Alright back to it then.' '\n'
+                print '\nAlright back to it then.'
                 return
 
             elif closer in game_state['commands']['Back'].valid_choices:
-                print 'Guess you don\'t need to look at anything, back to it.'
+                print '\nGuess you don\'t need to look at anything, back to it.'
                 return
 
             else:
-                print 'That is not very helpful. Why don\'t you try \
+                print '\nThat is not very helpful. Why don\'t you try \
     something like yes or no?'
                 return
 
     if look_choice in game_state['room']['enemies']['valid_choices']:
-        print game_state['room']['enemies']['description']
+        print '\n', game_state['room']['enemies']['description']
 
 
     elif look_choice in game_state['commands']['Back'].valid_choices:
-        print 'Guess you don\'t need to look at anything, back to it.'
+        print '\nGuess you don\'t need to look at anything, back to it.'
 
 
     else:
-        print 'That is not helpful! next time try looking at something \
+        print '\nThat is not helpful! next time try looking at something \
 in the room or just go back...'
 
 
@@ -309,51 +313,51 @@ inventory' % game_state['room']['items'][item].name
             print '\nGuess you don\'t want any of this junk, back to it.'
             return
 
-        else:
-            print """
+    print """
 Either You can't take that in which case you
 should try something else, maybe 'the item'.
 
 OR that is not actually a thing here and your just crazy!"""
-            return
+
 
 def listen_converter(listen):
     global game_state
     for door in game_state['room']['doors']:
         if listen in game_state['room']['doors'][door].valid_choices:
-            print game_state['room']['doors'][door].listen
+            print '\n', game_state['room']['doors'][door].listen
             return
 
     if listen in roomlisten:
-        print game_state['room']['listen']
-        return
+        print '\n', game_state['room']['listen']
+
 
     elif listen in game_state['room']['enemies']['valid_choices']:
-        print game_state['room']['enemies']['listen']
-        return
+        print '\n', game_state['room']['enemies']['listen']
+
 
     elif listen in game_state['commands']['Back'].valid_choices:
-        print 'Guess you don\'t want to hear anything then, back to it.'
-        return
+        print '\nGuess you don\'t want to hear anything then, back to it.'
+
 
     else:
-        print 'What ever your trying to listen to either is not in this \
+        print '\nWhat ever your trying to listen to either is not in this \
 room or your just crazy.'
-        return
+
 
 def entry_converter(enter):
     global game_state
     for door in game_state['room']['doors']:
         if enter in game_state['room']['doors'][door].valid_choices:
-             game_state['room']['doors'][door].enter()
+            game_state['room']['doors'][door].enter()
+            return
 
-        elif enter in game_state['commands']['Back'].valid_choices:
-            print 'Guess you don\'t want to go anywhere yet, back to it.'
-            return None
+    if enter in game_state['commands']['Back'].valid_choices:
+        print '\nGuess you don\'t want to go anywhere yet, back to it.'
+        return None
 
-        else:
-            print ('Either that isn\'t a door, isn\'t in this room, or your just crazy!')
-            return None
+    else:
+        print ('\nEither that isn\'t a door, isn\'t in this room, or your just crazy!')
+        return None
 
 
 def ineract_converter(interact):
@@ -361,32 +365,37 @@ def ineract_converter(interact):
     global game_over
     for interaction in game_state['commands']:
         if interact in game_state['commands'][interaction].valid_choices:
-            if interaction == use_sword and 'Sword' in game_state['player']['inventory']:
-                return game_state['player']['interactions'].Sword
+            if interact in game_state['commands']['Use Sword'].valid_choices and 'Sword' in game_state['player']['inventory']:
+                Enemy.weapon = 'sword'
+                Enemy.kill_or_die()
 
-            elif interaction == use_sword and 'Sword' not in game_state['player']['inventory']:
+            elif interact in game_state['commands']['Use Sword'].valid_choices and 'Sword' not in game_state['player']['inventory']:
                 game_over = True
 
-            elif interaction == use_staff and 'Staff' in game_state['player']['inventory']:
-                return game_state['player']['interactions'].Staff
+            elif interact in game_state['commands']['Use Staff'].valid_choices and 'Staff' in game_state['player']['inventory']:
+                Enemy.weapon = 'staff'
+                Enemy.kill_or_die()
 
-            elif interaction == use_staff and 'Staff' not in game_state['player']['inventory']:
+            elif interact in game_state['commands']['Use Staff'].valid_choices and 'Staff' not in game_state['player']['inventory']:
                 game_over = True
 
-            elif interaction == use_cloak and 'Cloak' in game_state['player']['inventory']:
-                return game_state['player']['interactions'].Cloak
+            elif interact in game_state['commands']['Use Cloak'].valid_choices and 'Cloak' in game_state['player']['inventory']:
+                Enemy.weapon = 'cloak'
+                Enemy.kill_or_die()
 
-            elif interaction == use_cloak and 'Cloak' not in game_state['player']['inventory']:
+            elif interact in game_state['commands']['Use Cloak'].valid_choices and 'Cloak' not in game_state['player']['inventory']:
                 game_over = True
 
-        elif interact in game_state['commands']['Back']['valid_choices']:
-            print 'Guess you don\'t want anything to do with this thing.'
-            print 'Back to it then!'
+    if interact in game_state['commands']['Back'].valid_choices:
+        print '\nGuess you don\'t want anything to do with this thing.'
+        print 'Back to it then!'
+        return
 
-        else:
-            print 'You tried to do something, I am not really sure what.'
-            print 'Whatever it was just got you killed though.'
-            game_over = True
+    else:
+        print '\nYou tried to do something, I am not really sure what.'
+        print 'Whatever it was just got you killed though.'
+        game_over = True
+        return
 
 
 def command_prompt(yes_no):
@@ -394,23 +403,29 @@ def command_prompt(yes_no):
         commands = raw_input('\nWhat command would you like to see options for?\n> ')
         for command in game_state['commands']:
             if commands in game_state['commands'][command].valid_choices:
-                print '\n'
-                print game_state['commands'][command].valid_choices
+                print '\n', game_state['commands'][command].valid_choices
+
+            elif yes_no in game_state['commands']['Back'].valid_choices:
+                print '\nGuess you got what you need.'
+
+            else:
+                print '\nCan\'t you read a list silly?'
+                return
 
     elif yes_no in game_state['commands']['No'].valid_choices:
-        print 'Guess you got what you need.'
+        print '\nGuess you got what you need.'
 
     elif yes_no in game_state['commands']['Back'].valid_choices:
-        print 'Guess you got what you need.'
+        print '\nGuess you got what you need.'
 
     else:
-        print 'That does not work here, try a yes or no next time.'
+        print '\nThat does not work here, try a yes or no next time.'
 
 
 def quit(yes_no):
     global game_over
     if yes_no in (game_state['commands']['Yes'].valid_choices):
-        exit('\nGood Bye!')
+        exit('\nGood Bye!\n')
 
     elif yes_no in (game_state['commands']['No'].valid_choices):
         print '\nAlright back to the game then!'
@@ -421,7 +436,7 @@ def quit(yes_no):
     else:
         print '\nIt\'s a simple yes or no question...'
         print 'You know what, just die instead!'
-        game_state['dead'] = ('Stupidity was your end,')
+        game_state['dead'] = ('Stupidity was your end.')
         game_over = True
 
 
@@ -454,8 +469,8 @@ like to enter?\n> ').lower())
             if no_enemy == False:
                 ineract_converter(raw_input('\nHow would you like to interact \
 with this creature?\n> '))
-            if no_enemy == True:
-                print 'There isn\'t anything to interact with here.'
+            elif no_enemy == True:
+                print '\nThere isn\'t anything to interact with here.'
 
         elif choice in game_state['commands']['Help'].valid_choices:
             print '\nThings you can do: \n'
@@ -477,26 +492,26 @@ dragon, it tries to toast you but fails so it decides to eat you instead!'
                 game_over = True
 
             elif dragon:
-                game_state.dead = 'You decide to die here but there is a dragon, \
+                game_state['dead'] = 'You decide to die here but there is a dragon, \
 it toasts you alive like a human shaped marshmallow! Chewy.'
                 game_over = True
 
             else:
-                game_state['dead'] = 'I don\'t know why but you chose to die, \
-your neck snaps!'
+                game_state['dead'] = '\nI don\'t know why but you chose to die, \
+your neck snaps.'
                 game_over = True
 
         elif choice in game_state['commands']['Quit'].valid_choices:
             quit(raw_input('\nAre you sure you would like to quit?\n> ').lower())
 
         else:
-            print 'That is not very helpful. Look around or something! Or ask for help?'
+            print '\nThat is not very helpful. Look around or something! Or ask for help?'
 
-    print '\n\nGAME OVER!\n\n'
     if victory:
         print 'You have slain the dragon and escaped the dungeon!'
         print 'Congratulations on your successful journey!'
         print 'You claim your riches and retire to a grand castle!'
+        print '\n\nVICTORY!\n'
         play_again = raw_input('Would you like to play again?\n> ')
         if play_again in game_state['commands']['Yes'].valid_choices:
             new_game()
@@ -506,7 +521,8 @@ your neck snaps!'
             print 'I will take that as a no.'
             exit('\nGood Bye!\n')
     else:
-        print game_state['dead'], 'you have died!'
+        print '\n', game_state['dead'], 'You have died!'
+        print '\n\nGAME OVER!\n'
         play_again = raw_input('\nWould you like to play again?\n> ')
         if play_again in game_state['commands']['Yes'].valid_choices:
             new_game()
@@ -660,25 +676,16 @@ torches crackling and a subtle thruming,\nas if the very air is vibrating.'
 'the Sword', 'The sword', 'the sword', 'Cloak', 'cloak', 'A Cloak', 'a Cloak',
 'A cloak', 'a cloak', 'The Cloak', 'the Cloak', 'The cloak', 'the cloak')
 
-    none = Enemy(
-        name = 'None',
-        description = 'There is no enemy here.',
-        listen = 'You are trying to listen to something that isn\'t here',
-        Sword = '',
-        Staff = '',
-        Cloak = '',
-        slay_txt = '',
-        die_txt = '',
-        item = '',
-        item_txt = '',
-        valid_choices = 'W',
-    )
-    none.write()
-
     action()
 
 def troll_room():
-
+    global game_state
+    global no_enemy
+    print "\n\n"
+    print "-" * 80
+    print """
+Hi
+    """
     no_enemy = False
 
     troll = Enemy(
@@ -693,6 +700,7 @@ def troll_room():
         item = '',
         item_txt = '',
         valid_choices = ('', '', ''),
+        weapon = ''
     )
     troll.write()
 
