@@ -1,7 +1,7 @@
 #ex 36 and 43
-#This is my first game and it starts with a road map
-#First room is entrance hall
-#The final two rooms are treasure and dragon
+#Each room needs:
+#Doors, Items, Enemy, list of contents, a listen, and a 'dead' if you want.
+#Need to move rooms to seperate files and import as modules
 from sys import exit
 
 game_state = {}
@@ -14,7 +14,7 @@ no_enemy = None
 door = ('Door', 'door', 'the door', 'The door','the Door', 'The Door',
 'Doors', 'doors', 'the doors', 'The doors','the Doors', 'The Doors',)
 item = ('Item', 'item', 'Items', 'items')
-roomlisten = ('Room', 'room', 'The Room', 'the room', 'The room', 'the Room')
+room = ('Room', 'room', 'The Room', 'the room', 'The room', 'the Room')
 
 class Command(object):
 
@@ -50,7 +50,7 @@ class Enemy(object):
     global game_state
 
     def __init__(self, name, description, listen, Sword, Staff, Cloak,
-    slay_txt, die_txt, item, item_txt, valid_choices, weapon):
+    slay_txt, die_txt, item, item_txt, valid_choices):
         self.name = name
         self.description = description
         self.listen = listen
@@ -62,42 +62,15 @@ class Enemy(object):
         self.item = item
         self.item_txt = item_txt
         self.valid_choices = valid_choices
-        self.weapon = weapon
 
-    def write(self):
-        game_state['room']['enemies']['name'] = [self.name]
-        game_state['room']['enemies']['description'] = [self.description]
-        game_state['room']['enemies']['listen'] = [self.listen]
-        game_state['room']['enemies']['valid_choices'] = [self.valid_choices]
-        game_state['player']['interactions']['Sword'] = [self.Sword]
-        game_state['player']['interactions']['Staff'] = [self.Staff]
-        game_state['player']['interactions']['Cloak'] = [self.Cloak]
+    def dead(self):
         game_state['dead'] = [self.die_text]
 
-    @classmethod
-    def kill_or_die(self):
+    def slay(self):
 
-        if self.weapon == 'sword':
-            if self.Sword == 'slay':
-                print self.slay_text
-                game_state['room']['items'][self.item]['name'] = self.item
-                print self.item_txt
-            elif self.Sword == 'die':
-                game_over = True
-        elif self.weapon == 'staff':
-            if self.Staff == 'slay':
-                print self.slay_text
-                game_state['room']['items'][self.item]['name'] = self.item
-                print self.item_txt
-            elif self.Staff == 'die':
-                game_over = True
-        elif self.weapon == 'cloak':
-            if self.Cloak == 'slay':
-                print self.slay_text
-                game_state['room']['items'][self.item]['name'] = self.item
-                print self.item_txt
-            elif self.Cloak == 'die':
-                game_over = True
+        print self.slay_text
+        game_state['room']['items'][self.item] = self.item
+        print self.item_txt
 
 def new_game():
     global game_state
@@ -116,15 +89,11 @@ def new_game():
                 },
             },
         'room': {
+            'contents': [],
             'listen': [],
             'items': {},
             'doors': {},
-            'enemies': {
-                'name': [],
-                'description': [],
-                'listen': [],
-                'valid_choices': [],
-                },
+            'enemies': {},
             },
         'starting_items': [],
         'commands': {},
@@ -266,11 +235,12 @@ something like yes or no?'
     something like yes or no?'
                 return
 
-    if look_choice in game_state['room']['enemies']['valid_choices']:
-        print '\n', game_state['room']['enemies']['description']
+    for enemy in game_state['room']['enemies']:
+        if look_choice in game_state['room']['enemies'][enemy].valid_choices:
+            print '\n', game_state['room']['enemies'][enemy].description
 
 
-    elif look_choice in game_state['commands']['Back'].valid_choices:
+    if look_choice in game_state['commands']['Back'].valid_choices:
         print '\nGuess you don\'t need to look at anything, back to it.'
 
 
@@ -282,6 +252,7 @@ in the room or just go back...'
 def pickup_converter(pickup):
     global game_state
     for item in game_state['room']['items']:
+        import pdb; pdb.set_trace()
         if pickup in game_state['room']['items'][item].valid_choices:
 
             if not game_state['player']['inventory']:
@@ -327,12 +298,12 @@ def listen_converter(listen):
             print '\n', game_state['room']['doors'][door].listen
             return
 
-    if listen in roomlisten:
+    for enemy in game_state['room']['enemies']:
+        if listen in game_state['room']['enemies'][enemy].valid_choices:
+            print '\n', game_state['room']['enemies'][enemy].listen
+
+    if listen in room:
         print '\n', game_state['room']['listen']
-
-
-    elif listen in game_state['room']['enemies']['valid_choices']:
-        print '\n', game_state['room']['enemies']['listen']
 
 
     elif listen in game_state['commands']['Back'].valid_choices:
@@ -365,26 +336,65 @@ def ineract_converter(interact):
     global game_over
     for interaction in game_state['commands']:
         if interact in game_state['commands'][interaction].valid_choices:
-            if interact in game_state['commands']['Use Sword'].valid_choices and 'Sword' in game_state['player']['inventory']:
-                Enemy.weapon = 'sword'
-                Enemy.kill_or_die()
+            if interact in game_state['commands']['Use Sword'].valid_choices:
+                if 'Sword' in game_state['player']['inventory']:
+                    for enemy in game_state['room']['enemies']:
+                        if game_state['room']['enemies'][enemy].Sword == 'slay':
+                            game_state['room']['enemies'][enemy].slay()
+                            return
 
-            elif interact in game_state['commands']['Use Sword'].valid_choices and 'Sword' not in game_state['player']['inventory']:
-                game_over = True
+                        elif game_state['room']['enemies'][enemy].Sword == 'die':
+                            game_over = True
+                            return
 
-            elif interact in game_state['commands']['Use Staff'].valid_choices and 'Staff' in game_state['player']['inventory']:
-                Enemy.weapon = 'staff'
-                Enemy.kill_or_die()
+                        else:
+                            print game_state['room']['enemies'][enemy].Sword
+                            return
 
-            elif interact in game_state['commands']['Use Staff'].valid_choices and 'Staff' not in game_state['player']['inventory']:
-                game_over = True
+                elif 'Sword' not in game_state['player']['inventory']:
+                    print 'You don\'t have that this is going to end poorly.'
+                    game_over = True
+                    return
 
-            elif interact in game_state['commands']['Use Cloak'].valid_choices and 'Cloak' in game_state['player']['inventory']:
-                Enemy.weapon = 'cloak'
-                Enemy.kill_or_die()
+            elif interact in game_state['commands']['Use Staff'].valid_choices:
+                if 'Staff' in game_state['player']['inventory']:
+                    for enemy in game_state['room']['enemies']:
+                        if game_state['room']['enemies'][enemy].Staff == 'slay':
+                            game_state['room']['enemies'][enemy].slay()
+                            return
 
-            elif interact in game_state['commands']['Use Cloak'].valid_choices and 'Cloak' not in game_state['player']['inventory']:
-                game_over = True
+                        elif game_state['room']['enemies'][enemy].Staff == 'die':
+                            game_over = True
+                            return
+
+                        else:
+                            print game_state['room']['enemies'][enemy].Staff
+                            return
+
+                elif 'Staff' not in game_state['player']['inventory']:
+                    print 'You don\'t have that this is going to end poorly.'
+                    game_over = True
+                    return
+
+            elif interact in game_state['commands']['Use Cloak'].valid_choices:
+                if 'Cloak' in game_state['player']['inventory']:
+                    for enemy in game_state['room']['enemies']:
+                        if game_state['room']['enemies'][enemy].Cloak == 'slay':
+                            game_state['room']['enemies'][enemy].slay()
+                            return
+
+                        elif game_state['room']['enemies'][enemy].Cloak == 'die':
+                            game_over = True
+                            return
+
+                        else:
+                            print game_state['room']['enemies'][enemy].Cloak
+                            return
+
+                elif 'Cloak' not in game_state['player']['inventory']:
+                    print 'You don\'t have that this is going to end poorly.'
+                    game_over = True
+                    return
 
     if interact in game_state['commands']['Back'].valid_choices:
         print '\nGuess you don\'t want anything to do with this thing.'
@@ -459,6 +469,9 @@ def action():
         elif choice in game_state['commands']['Listen'].valid_choices:
             listen_converter(raw_input('\nWhat would you like to listen to?\n> '))
 
+        elif choice in room:
+            print game_state['room']['contents']
+
         elif choice in game_state['commands']['Enter'].valid_choices:
             new_room = entry_converter(raw_input('\nWhich door would you \
 like to enter?\n> ').lower())
@@ -473,7 +486,11 @@ with this creature?\n> '))
                 print '\nThere isn\'t anything to interact with here.'
 
         elif choice in game_state['commands']['Help'].valid_choices:
-            print '\nThings you can do: \n'
+            print '\nThings you can use to interact: '
+            print '\ndoor: ', door
+            print '\nitem: ', item
+            print '\nroom: ', room
+            print '\nCommands at your disposal: \n'
             for key in game_state['commands'].keys():
                 print(key)
             command_prompt(raw_input('\nWould you like to see a list of input \
@@ -548,13 +565,14 @@ Moving forward in the room a voice speaks to you from all around you.
 'Make your choices wisely as your fate is in your own hands.'
 'Will you find the path to freedom or fail as so many who came before...'
 
-For now you may do a few things:
+For now, you may do a few things:
 Use enter to go through doors.
 Use listen to hear the room or behind a door.
 Use take to pick up items.
 Use look to examine things like the items or doors.
 Anything you pick up will go into your Inventory.
 Use back to make a different choice.
+If you need to know what is in the room again use Room to see its contents.
 Or use Help if you get stuck.
 
 'Now go!'
@@ -569,7 +587,7 @@ time telling it is even there.',
         description = """
 Looking closer the surface is wood but stained a darker color than anything \
 you have ever seen.
-Looking away your eyes have to re-adjust to the light of the room as if you \
+Looking away your eyes must re-adjust to the light of the room as if you \
 had been in a dark space.
 """,
         enter = troll_room,
@@ -580,7 +598,7 @@ had been in a dark space.
         name = 'A Red door',
         listen = 'Listening at the Red door you hear the crackle of fire, \
 as if from more torches and a deep distant rumble.',
-        glance = 'The Red door is an ever changing color, as if the door it \
+        glance = 'The Red door is an ever-changing color, as if the door it \
 self was on fire.',
         description = """
 The door shifts from deep blood reds to bright orange and yellow hues before \
@@ -595,7 +613,7 @@ front of it.
     game_state['room']['doors']['Silver door'] = Door(
         name = 'A Silver door',
         listen = 'Listening at the Silver door you hear running water, \
-an odd giggling, and a very faint, very distant rumbling',
+an odd giggling, and a very faint, very distant rumbling.',
         glance = 'The Silver door is made of bright metal.',
         description = """
 It appears to be made of a forged material, the likes of which you have
@@ -612,12 +630,12 @@ heart beating from what you can only describe as a thrill?
         item_look = 'A tall, straight staff with twisting wood calmly set before you.',
         description = """
 The Staff is tall and twisted, \
-made of a deep dark wood and topped with an ever changing crystal.
+made of a deep dark wood and topped with an ever-changing crystal.
 It exudes power, pulsing and searing against the air.
 """,
         take_me = """
-The torches blaze up, wind howles through the room \
-and lightning strikes the crystal atop it!
+The torches blaze up, wind howls through the room \
+and lightning strikes the crystal atop it, which glows blue!
 """,
         valid_choices = ('Staff', 'staff', 'A Staff', 'a Staff', 'A staff',
 'a staff', 'The Staff', 'the Staff', 'The staff', 'the staff'),
@@ -628,9 +646,9 @@ and lightning strikes the crystal atop it!
         item_look = '\nA bright blade laying bare in front of the metal door.',
         description = """
 The Sword is double edged and roughly three feet long, and
-oddly light for its size, it has intricit etchings on either side \
+oddly light for its size, it has intricate etchings on either side \
 of the blades face.
-Even with the fine detail their isn't a single blemish on it,
+Even with the fine detail there isn't a single blemish on it,
 you get the feeling you couldn't break it if you tried.""",
         take_me = """
 You lift the sword from the ground and the blade almost seems to hum \
@@ -652,7 +670,7 @@ It's a perfect fit, but why wouldn't it be.
         description = """
 The Cloak is cool and warm, black and shimmering like a moon lit pool, \
 while also all colors at once.
-At times you can't even really see it.
+At times, you can't even really see it.
 Looking at it is a bit unnerving while also calming, it almost feels protective.
 The cloth is untarnished, softer than a shadow, and carries the \
 faintest smell of the first leaves of fall.
@@ -668,13 +686,16 @@ while your breathing and movement seems hushed and almost not even there.
 )
 
     game_state['room']['listen'] = 'Listening to the room you hear the \
-torches crackling and a subtle thruming,\nas if the very air is vibrating.'
+torches crackling and a subtle thrumming,\nas if the very air is vibrating.'
 
     game_state['starting_items'] = ('Staff', 'staff', 'A Staff', 'a Staff',
 'A staff', 'a staff', 'The Staff', 'the Staff', 'The staff', 'the staff',
 'Sword', 'sword', 'A Sword', 'a Sword', 'A sword', 'a sword', 'The Sword',
 'the Sword', 'The sword', 'the sword', 'Cloak', 'cloak', 'A Cloak', 'a Cloak',
 'A cloak', 'a cloak', 'The Cloak', 'the Cloak', 'The cloak', 'the cloak')
+
+    game_state['room']['contents'] = ('Black door', 'Red door', 'Silver door',
+'Staff', 'Sword', 'Cloak')
 
     action()
 
@@ -684,25 +705,93 @@ def troll_room():
     print "\n\n"
     print "-" * 80
     print """
-Hi
+You walk through the door to find yourself in a dimly lit, mid-sized chamber.
+There is a single chandelier in the center of the room with only a few \
+lit candles.
+You notice the room smells awful for some reason and look around to find...
+
+'A TROLL!'
+
+'Yes, there is a troll in the dungeon.'
+'I thought you ought to know.'
+
+'Luckily for you it is sound asleep on the other side of the room.'
+'Unluckily for you the only other doors out of the room are behind it's fat \
+smelly butt.'
+
+Aside from you, the dark, the smell, the troll, and the three doors the room \
+is completely empty.
+
+Oh and the door you just came through locks firmly behind you.
+
+'As this is the first enemy you have encountered now would be a good time'
+'to tell you that you can interact with them with the items from the first'
+'room. You can do this simply by saying use (item) these are also commands'
+'which you can still find in help.'
     """
     no_enemy = False
 
-    troll = Enemy(
+    Anklet = Item(
+        name = 'Troll\'s anklet',
+        item_look = 'A heavy weighted ring with a clasp.',
+        description = """
+The anklet is made up of a dense metal and is heavy to your hands.
+There are seven small metal orbs and seven small steel octahedrons
+at points around the anklet.
+It seems very weighty while making you feel lighter in contrast.
+""",
+        take_me = """
+You clasp the anklet on to yourself and a feeling rushes through you.
+Your steps are lighter and fleeting while they also bear the weight
+of someone twice your size or more.
+You feel like you could punch through a wall.
+'Probably not these ones though, given the magic here.'
+You think to yourself.
+""",
+        valid_choices = ('Anklet', 'anklet', 'the anklet', 'The anklet',
+'The Anklet', 'the Anklet', 'Troll\'s anklet', 'troll\'s anklet',
+'Troll\'s Anklet', 'troll\'s Anklet'),
+    ),
+
+    game_state['room']['enemies']['troll'] = Enemy(
         name = 'Troll',
-        description = ' ',
-        listen = ' ',
+        description = """
+A huge, smelly, creature asleep on his large butt.
+He is holding a rather large club that is three times your size around and
+three times your height. He is only wearing a loin cloth and an anklet
+which he happens to be wearing as a ring on his pinky.
+""",
+        listen = 'He is just snoring and grunting a little in his sleep.',
         Sword = 'die',
         Staff = 'die',
         Cloak = 'slay',
-        slay_txt = '',
-        die_txt = '',
-        item = '',
-        item_txt = '',
-        valid_choices = ('', '', ''),
-        weapon = ''
+        slay_txt = """
+Using your cloak, you're able to get right in front of \
+the troll without waking him up.
+You jump up and kick him in the head toppling him backwards.
+He wakes up briefly to find his head colliding with the ground,
+swiftly follow by his club crushing his skull killing him instantly.
+        """,
+        die_txt = """
+Well you tried something and it was quite noisy.
+So the troll woke up!
+He yawns swinging his club wide...
+
+It catches you in the gut picking you up off your feet.
+The air is knocked out of you and your in agonizing pain for a brief moment...
+
+And then you are jelly on the wall!
+You were crushed between the trolls club and the wall.
+""",
+        item = Anklet,
+        item_txt = 'The clasp on the anklet opens and it falls to the ground \
+with a heavy crash, cracking the stones of the floor.',
+        valid_choices = ('Troll', 'troll', 'the troll', 'The troll',
+'the Troll', 'The Troll'),
     )
-    troll.write()
+    game_state['room']['enemies']['troll'].dead()
+
+
 
     action()
 
