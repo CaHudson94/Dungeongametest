@@ -10,11 +10,13 @@ unburnt = None
 victory = None
 game_over = None
 no_enemy = None
+enemy_alive = None
+room_contents = None
+entries = 0
 
-door = ('Door', 'door', 'the door', 'The door','the Door', 'The Door',
-'Doors', 'doors', 'the doors', 'The doors','the Doors', 'The Doors',)
-item = ('Item', 'item', 'Items', 'items')
-room = ('Room', 'room', 'The Room', 'the room', 'The room', 'the Room')
+door = ( 'door', 'the door', 'doors', 'the doors')
+item = ('item', 'items')
+room = ('room', 'the room')
 
 class Command(object):
 
@@ -48,9 +50,10 @@ class Enemy(object):
 
     global game_over
     global game_state
+    global enemy_alive
 
     def __init__(self, name, description, listen, Sword, Staff, Cloak,
-    slay_txt, die_txt, item, item_txt, valid_choices):
+    slay_txt, die_txt, item_txt, door_clear, valid_choices):
         self.name = name
         self.description = description
         self.listen = listen
@@ -59,18 +62,19 @@ class Enemy(object):
         self.Cloak = Cloak
         self.slay_text = slay_txt
         self.die_text = die_txt
-        self.item = item
         self.item_txt = item_txt
+        self.door_clear = door_clear
         self.valid_choices = valid_choices
 
     def dead(self):
         game_state['dead'] = [self.die_text]
 
     def slay(self):
-
+        enemy_alive = False
         print self.slay_text
-        game_state['room']['items'][self.item] = self.item
         print self.item_txt
+        print self.door_clear
+
 
 def new_game():
     global game_state
@@ -79,6 +83,7 @@ def new_game():
     global victory
     global game_over
     global no_enemy
+    global enemy_alive
     game_state = {
         'player': {
             'inventory': {},
@@ -89,7 +94,6 @@ def new_game():
                 },
             },
         'room': {
-            'contents': [],
             'listen': [],
             'items': {},
             'doors': {},
@@ -110,34 +114,36 @@ def new_game():
 
     no_enemy = True
 
+    enemy_alive = False
+
     game_state['commands']['Look'] = Command(
         name = 'Look',
-        valid_choices = ('Look', 'look', 'L', 'l', 'Lo', 'lo'),
+        valid_choices = ('look', 'l', 'lo'),
     )
 
     game_state['commands']['Take'] = Command(
         name = 'Take',
-        valid_choices = ('Take', 'take', 'T', 't'),
+        valid_choices = ('take', 't'),
     )
 
     game_state['commands']['Listen'] = Command(
         name = 'Listen',
-        valid_choices = ('Listen', 'listen', 'Lis', 'lis',),
+        valid_choices = ('listen', 'lis',),
     )
 
     game_state['commands']['Enter'] = Command(
         name = 'Enter',
-        valid_choices = ('Enter', 'enter', 'E', 'e'),
+        valid_choices = ('enter', 'e'),
     )
 
     game_state['commands']['Help'] = Command(
         name = 'Help',
-        valid_choices = ('Help', 'help', 'H', 'h'),
+        valid_choices = ('help', 'h'),
     )
 
     game_state['commands']['Back'] = Command(
         name = 'Back',
-        valid_choices = ('Back', 'back', 'B', 'b'),
+        valid_choices = ('back', 'b'),
     )
 
     game_state['commands']['Yes'] = Command(
@@ -152,38 +158,37 @@ def new_game():
 
     game_state['commands']['Die'] = Command(
         name = 'Die',
-        valid_choices = ('die', 'Die', 'I die', 'I Die', 'i die',
-        'i Die', 'dead', 'Dead'),
+        valid_choices = ('die', 'i die', 'dead'),
     )
 
     game_state['commands']['Inventory'] = Command(
         name = 'Inventory',
-        valid_choices = ('Inventory', 'inventory', 'I', 'i', 'inv', 'Inv'),
+        valid_choices = ('inventory', 'i', 'inv'),
     )
 
     game_state['commands']['Quit'] = Command(
         name = 'Quit',
-        valid_choices = ('Quit', 'quit', 'Q', 'q'),
+        valid_choices = ('quit', 'q'),
     )
 
     game_state['commands']['Interact'] = Command(
         name = 'Interact',
-        valid_choices = ('Int', 'int', 'In', 'in', 'Interact', 'interact'),
+        valid_choices = ('int', 'in', 'interact'),
     )
 
     game_state['commands']['Use Sword'] = Command(
         name = 'Use Sword',
-        valid_choices = ('Use Sword', 'use sword', 'Use sword', 'use Sword'),
+        valid_choices = ('use sword', 'use the sword'),
     )
 
     game_state['commands']['Use Staff'] = Command(
         name = 'Use Staff',
-        valid_choices = ('Use Staff', 'use staff', 'Use staff', 'use Staff'),
+        valid_choices = ('use staff', 'use the staff'),
     )
 
     game_state['commands']['Use Cloak'] = Command(
         name = 'Use Cloak',
-        valid_choices = ('Use Cloak', 'use cloak', 'Use cloak', 'use Cloak'),
+        valid_choices = ('use cloak', 'use the cloak'),
     )
 
     entrance_hall()
@@ -193,7 +198,7 @@ def look_converter(look_choice):
     global game_state
     for door in game_state['room']['doors']:
         if look_choice in game_state['room']['doors'][door].valid_choices:
-            print '\n', game_state['room']['doors'][door].glance
+            print game_state['room']['doors'][door].glance
             closer = raw_input('\nWould you like to look closer?\n> ').lower()
 
             if closer in game_state['commands']['Yes'].valid_choices:
@@ -215,7 +220,7 @@ something like yes or no?'
 
     for item in game_state['room']['items']:
         if look_choice in game_state['room']['items'][item].valid_choices:
-            print '\n', game_state['room']['items'][item].item_look
+            print game_state['room']['items'][item].item_look
             closer = raw_input('\nWould you like to look closer?\n> ').lower()
 
             if closer in game_state['commands']['Yes'].valid_choices:
@@ -232,12 +237,12 @@ something like yes or no?'
 
             else:
                 print '\nThat is not very helpful. Why don\'t you try \
-    something like yes or no?'
+something like yes or no?'
                 return
 
     for enemy in game_state['room']['enemies']:
         if look_choice in game_state['room']['enemies'][enemy].valid_choices:
-            print '\n', game_state['room']['enemies'][enemy].description
+            print game_state['room']['enemies'][enemy].description
 
 
     if look_choice in game_state['commands']['Back'].valid_choices:
@@ -251,8 +256,8 @@ in the room or just go back...'
 
 def pickup_converter(pickup):
     global game_state
+    global room_contents
     for item in game_state['room']['items']:
-        import pdb; pdb.set_trace()
         if pickup in game_state['room']['items'][item].valid_choices:
 
             if not game_state['player']['inventory']:
@@ -261,23 +266,26 @@ def pickup_converter(pickup):
                     print game_state['room']['items'][item].take_me
                     print 'You picked up %s, it has been added to your \
 inventory!' % game_state['room']['items'][item].name
+                    room_contents.remove(item)
                     return
 
             else:
-                if item in game_state['starting_items'] and game_state['player']['inventory']:
+                if item in game_state['starting_items']:
+                    if game_state['player']['inventory']:
                         print '\nYou have chosen your path!'
                         print 'Only one may be taken, move along!'
                         return
 
-                elif item in game_state['player']['inventory'][item].valid_choices:
-                    print 'You already have that.'
+                elif item in game_state['player']['inventory']:
+                    print '\nYou already have that.'
                     return
 
                 elif item in game_state['room']['items']:
                     game_state['player']['inventory'][item] = game_state['room']['items'][item]
                     print game_state['room']['items'][item].take_me
                     print 'You picked up %s, it has been added to your \
-inventory' % game_state['room']['items'][item].name
+inventory!' % game_state['room']['items'][item].name
+                    room_contents.remove(item)
                     return
 
         elif pickup in game_state['commands']['Back'].valid_choices:
@@ -311,8 +319,10 @@ def listen_converter(listen):
 
 
     else:
-        print '\nWhat ever your trying to listen to either is not in this \
-room or your just crazy.'
+        print '\nThere are a few options here:'
+        print 'You can\'t get to what you want right now,'
+        print 'or whatever your trying to listen to either is not in this room,'
+        print 'OR your just crazy!'
 
 
 def entry_converter(enter):
@@ -410,17 +420,20 @@ def ineract_converter(interact):
 
 def command_prompt(yes_no):
     if yes_no in game_state['commands']['Yes'].valid_choices:
-        commands = raw_input('\nWhat command would you like to see options for?\n> ')
+        choice = (raw_input('\nWhat command would you \
+like to see options for?\n> ').lower())
         for command in game_state['commands']:
-            if commands in game_state['commands'][command].valid_choices:
+            if choice in game_state['commands'][command].valid_choices:
                 print '\n', game_state['commands'][command].valid_choices
+                return
 
             elif yes_no in game_state['commands']['Back'].valid_choices:
                 print '\nGuess you got what you need.'
-
-            else:
-                print '\nCan\'t you read a list silly?'
                 return
+
+        else:
+            print '\nCan\'t you read a list silly?'
+
 
     elif yes_no in game_state['commands']['No'].valid_choices:
         print '\nGuess you got what you need.'
@@ -457,20 +470,22 @@ def action():
     global no_enemy
     global unburnt
     global dragon
+    global room_contents
     while game_over == False:
-        choice = raw_input('\nWhat action would you like to take?\n> ')
+        choice = (raw_input('\nWhat action would you like to take?\n> ').lower())
 
         if choice in game_state['commands']['Look'].valid_choices:
-            look_converter(raw_input('\nWhat would you like to look at?\n> '))
+            look_converter(raw_input('\nWhat would you like to look at?\n> ').lower())
 
         elif choice in game_state['commands']['Take'].valid_choices:
-            pickup_converter(raw_input('\nWhat would you like to take?\n> '))
+            pickup_converter(raw_input('\nWhat would you like to take?\n> ').lower())
 
         elif choice in game_state['commands']['Listen'].valid_choices:
-            listen_converter(raw_input('\nWhat would you like to listen to?\n> '))
+            listen_converter(raw_input('\nWhat would you like to listen to?\n> ').lower())
 
         elif choice in room:
-            print game_state['room']['contents']
+            print '\nThis room contains: \n'
+            print '\n'.join(str(c) for c in room_contents)
 
         elif choice in game_state['commands']['Enter'].valid_choices:
             new_room = entry_converter(raw_input('\nWhich door would you \
@@ -481,7 +496,7 @@ like to enter?\n> ').lower())
         elif choice in game_state['commands']['Interact'].valid_choices:
             if no_enemy == False:
                 ineract_converter(raw_input('\nHow would you like to interact \
-with this creature?\n> '))
+with this creature?\n> ').lower())
             elif no_enemy == True:
                 print '\nThere isn\'t anything to interact with here.'
 
@@ -552,6 +567,7 @@ your neck snaps.'
 
 def entrance_hall():
     global game_state
+    global room_contents
     print "\n\n"
     print "-" * 80
     print """
@@ -637,8 +653,7 @@ It exudes power, pulsing and searing against the air.
 The torches blaze up, wind howls through the room \
 and lightning strikes the crystal atop it, which glows blue!
 """,
-        valid_choices = ('Staff', 'staff', 'A Staff', 'a Staff', 'A staff',
-'a staff', 'The Staff', 'the Staff', 'The staff', 'the staff'),
+        valid_choices = ('staff', 'a staff', 'the staff'),
 )
 
     game_state['room']['items']['Sword'] = Item(
@@ -660,8 +675,7 @@ You look down to find a sheath has appeared on you hip which \
 you slide your new weapon into.
 It's a perfect fit, but why wouldn't it be.
 """,
-        valid_choices = ('Sword', 'sword', 'A Sword', 'a Sword', 'A sword',
-'a sword', 'The Sword', 'the Sword', 'The sword', 'the sword'),
+        valid_choices = ('sword', 'a sword', 'the sword'),
 )
 
     game_state['room']['items']['Cloak'] = Item(
@@ -681,27 +695,28 @@ The cloth catches wind and rustles around you.
 As it settles it seems the sounds around you are clearer,
 while your breathing and movement seems hushed and almost not even there.
 """,
-        valid_choices = ('Cloak', 'cloak', 'A Cloak', 'a Cloak', 'A cloak',
-    'a cloak', 'The Cloak', 'the Cloak', 'The cloak', 'the cloak'),
+        valid_choices = ('cloak', 'a cloak', 'the cloak'),
 )
 
     game_state['room']['listen'] = 'Listening to the room you hear the \
 torches crackling and a subtle thrumming,\nas if the very air is vibrating.'
 
-    game_state['starting_items'] = ('Staff', 'staff', 'A Staff', 'a Staff',
-'A staff', 'a staff', 'The Staff', 'the Staff', 'The staff', 'the staff',
-'Sword', 'sword', 'A Sword', 'a Sword', 'A sword', 'a sword', 'The Sword',
-'the Sword', 'The sword', 'the sword', 'Cloak', 'cloak', 'A Cloak', 'a Cloak',
-'A cloak', 'a cloak', 'The Cloak', 'the Cloak', 'The cloak', 'the cloak')
+    game_state['starting_items'] = ('Staff', 'Sword', 'Cloak')
 
-    game_state['room']['contents'] = ('Black door', 'Red door', 'Silver door',
-'Staff', 'Sword', 'Cloak')
+    room_contents = ['Black door', 'Red door', 'Silver door',
+'Staff', 'Sword', 'Cloak']
 
     action()
+
 
 def troll_room():
     global game_state
     global no_enemy
+    global enemy_alive
+    global room_contents
+
+    game_state['room']['items'] = {}
+
     print "\n\n"
     print "-" * 80
     print """
@@ -731,27 +746,7 @@ Oh and the door you just came through locks firmly behind you.
     """
     no_enemy = False
 
-    Anklet = Item(
-        name = 'Troll\'s anklet',
-        item_look = 'A heavy weighted ring with a clasp.',
-        description = """
-The anklet is made up of a dense metal and is heavy to your hands.
-There are seven small metal orbs and seven small steel octahedrons
-at points around the anklet.
-It seems very weighty while making you feel lighter in contrast.
-""",
-        take_me = """
-You clasp the anklet on to yourself and a feeling rushes through you.
-Your steps are lighter and fleeting while they also bear the weight
-of someone twice your size or more.
-You feel like you could punch through a wall.
-'Probably not these ones though, given the magic here.'
-You think to yourself.
-""",
-        valid_choices = ('Anklet', 'anklet', 'the anklet', 'The anklet',
-'The Anklet', 'the Anklet', 'Troll\'s anklet', 'troll\'s anklet',
-'Troll\'s Anklet', 'troll\'s Anklet'),
-    ),
+    enemy_alive == True
 
     game_state['room']['enemies']['troll'] = Enemy(
         name = 'Troll',
@@ -769,8 +764,9 @@ which he happens to be wearing as a ring on his pinky.
 Using your cloak, you're able to get right in front of \
 the troll without waking him up.
 You jump up and kick him in the head toppling him backwards.
+
 He wakes up briefly to find his head colliding with the ground,
-swiftly follow by his club crushing his skull killing him instantly.
+swiftly follow by his own club crushing his skull killing him instantly.
         """,
         die_txt = """
 Well you tried something and it was quite noisy.
@@ -783,17 +779,82 @@ The air is knocked out of you and your in agonizing pain for a brief moment...
 And then you are jelly on the wall!
 You were crushed between the trolls club and the wall.
 """,
-        item = Anklet,
         item_txt = 'The clasp on the anklet opens and it falls to the ground \
 with a heavy crash, cracking the stones of the floor.',
-        valid_choices = ('Troll', 'troll', 'the troll', 'The troll',
-'the Troll', 'The Troll'),
+        door_clear = """
+With the troll dead, brains decorating the floor, the doors are now clear.
+One is a pure white and the other a plain brown.
+""",
+        valid_choices = ('troll', 'the troll'),
     )
     game_state['room']['enemies']['troll'].dead()
 
+    if enemy_alive == False:
+        game_state['room']['items']['Anklet'] = Item(
+            name = 'Troll\'s anklet',
+            item_look = 'A heavy weighted ring with a clasp.',
+            description = """
+The anklet is made up of a dense metal and is heavy to your hands.
+There are seven small metal orbs and seven small steel octahedrons
+at points around the anklet.
+It seems very weighty while making you feel lighter in contrast.
+""",
+            take_me = """
+You clasp the anklet on to yourself and a feeling rushes through you.
+Your steps are lighter and fleeting while they also bear the weight \
+of someone twice your size or more.
+Although you are slightly louder now you seem much quicker.
+You feel like you could punch through a wall.
 
+'Probably not these ones though, given the magic here.' You think to yourself.
+""",
+            valid_choices = ('anklet', 'the anklet', 'troll\'s anklet'),
+)
 
-    action()
+        game_state['room']['doors']['Brown door'] = Door(
+            name = 'Brown door',
+            listen = """
+Listening at the door you hear nothing, deafening, unending nothingness.
+Silence fails to describe the depth of nothingness you hear.
+""",
+            glance = 'A brown wood door.',
+            description = 'Just a simple plain brown wood door nothing descipt \
+or unique about it or it\'s handle.',
+            enter = infinite_room,
+            valid_choices = ('brown door', 'the brown door'),
+)
+
+        game_state['room']['doors']['White door'] = Door(
+            name = 'White door',
+            listen = """
+You hear a single deep rumbling sound still far off though and a quite...
+clicking sound?
+The second sound send chills down your spine.
+There is also a faint trickling sound which might be water?
+""",
+            glance = 'The door is pure white, a stark contrast to the dark room.',
+            description = """
+The door is not just white but perfectly clean even with the dank dirty nature \
+of the room.
+It strikes you as odd considering the layer of dirt and grim on everything else.
+The grain of the wood appears to be woven some how, rather than grown or carved.
+""",
+            enter = spider_room,
+            valid_choices = ('the white door', 'white door'),
+)
+
+        room_contents = ['Anklet', 'Brown door', 'White door']
+
+    elif enemy_alive == True:
+
+        room_contents = ['Troll', 'Two blocked doors']
+
+        action()
+
+def spider_room():
+
+    pass
+
 
 def goblin_room():
 
@@ -806,22 +867,81 @@ def lava_room():
 
 
 def infinite_room():
-    entries = 0
-    if entries < 9 and entries > 0:
-        print "Just as the room before..."
-        door1 = ("Listening at the door you hear nothing, deafening, unending nothingness, Just as the door which lead you here. It was unsettling before and now it shakes you to your core.")
+    global entries
+    global game_over
+    entries = entries + 1
+    if entries <= 9 and entries > 1:
+        print '\nJust as the room before...'
+    elif entries > 9:
+        game_state['dead'] = """
+You are trapped in this darkness, this nothingness.
+You go on for a while but eventually go insane.
+You carve out your own eyes.
+"""
+        game_over = True
 
-    print "You find yourself in a black room."
-    print "It is devoid of all color, life or light. It is not dark simply black."
-    print "Even so you can see a door opposite you and the door that has just swung shut behind you."
-    print "There is nothing here in fact the room is it self nothing."
-    return action()
+    print """
+You find yourself in a black room.
+It is devoid of all color, life or light. It is not dark simply black.
+Even so you can see a door opposite you and the door \
+that has just swung shut behind you.
+There is nothing here in fact the room is it self nothing.
+However unlike past rooms the door you came through does not \
+seem to have locked.
+"""
 
-    closerlookdoors = ("Just a simple plain brown wood door nothing descipt or unique about it or it's handle.")
+    game_state['room']['doors']['Near brown door'] = Door(
+        name = 'Near brown door',
+        listen = """
+Listening at the door you hear nothing, deafening, unending nothingness.
+Silence fails to describe the depth of nothingness you hear.
+""",
+        glance = 'A brown wood door.',
+        description = 'Just a simple plain brown wood door nothing descipt \
+or unique about it or it\'s handle.',
+        enter = infinite_room,
+        valid_choices = ('the near brown door', 'near brown door'),
+)
 
-    doorlis = (door1)
+    game_state['room']['doors']['Far brown door'] = Door(
+        name = 'Far brown door',
+        listen = """
+Listening at the door you hear nothing, deafening, unending nothingness.
+Silence fails to describe the depth of nothingness you hear.
+""",
+        glance = 'A brown wood door.',
+        description = 'Just a simple plain brown wood door nothing descipt \
+or unique about it or it\'s handle.',
+        enter = infinite_room,
+        valid_choices = ('the far brown door', 'far brown door'),
+)
 
-    door1 = ("Listening at the door you hear nothing, deafening, unending nothingness. Silence fails to describe the depth of nothingness you hear.")
+    game_state['room']['doors']['Secret Door One'] = Door(
+        name = 'Magic missile door',
+        listen = '',
+        glance = '',
+        description = '',
+        enter = treasure_room,
+        valid_choices = ('i use magic missile',
+'i use magic missile at the darkness', 'i cast magic missile',
+'i cast magic missile at the darkness', 'cast magic missile',
+'cast magic missile at the darkness', 'use magic missile',
+'use magic missile at the darkness'),
+)
+
+    game_state['room']['doors']['Secret Door Two'] = Door(
+        name = 'Name of the Empress door',
+        listen = '',
+        glance = '',
+        description = '',
+        enter = treasure_room,
+        valid_choices = ('moonchild', 'moonchild!', 'name of the empress'),
+)
+
+    room_contents = ['Near brown door', 'Far brown door']
+
+    action()
+
 
 
 def dragon_chamber():
