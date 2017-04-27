@@ -603,6 +603,7 @@ time telling it is even there.',
         description = """
 Looking closer the surface is wood but stained a darker color than anything \
 you have ever seen.
+It seems to have a symbol resembling a cloak etched in it's surface.
 Looking away your eyes must re-adjust to the light of the room as if you \
 had been in a dark space.
 """,
@@ -619,6 +620,7 @@ self was on fire.',
         description = """
 The door shifts from deep blood reds to bright orange and yellow hues before \
 your eyes.
+It seems to have a symbol resembling a staff etched in it's surface.
 It is warm to the touch and you start sweating a little just standing in \
 front of it.
 """,
@@ -634,7 +636,8 @@ an odd giggling, and a very faint, very distant rumbling.',
         description = """
 It appears to be made of a forged material, the likes of which you have
 never seen before, you doubt even a ram could damage this door.
-\nIt is cool to the touch and when you pull your hand away you find your
+It seems to have a symbol resembling a sword etched in it's surface.
+It is cool to the touch and when you pull your hand away you find your
 heart beating from what you can only describe as a thrill?
 """,
         enter = goblin_room,
@@ -743,7 +746,7 @@ Oh and the door you just came through locks firmly behind you.
 'to tell you that you can interact with them with the items from the first'
 'room. You can do this simply by saying use (item) these are also commands'
 'which you can still find in help.'
-    """
+"""
     no_enemy = False
 
     enemy_alive == True
@@ -851,24 +854,223 @@ The grain of the wood appears to be woven some how, rather than grown or carved.
 
         action()
 
+
 def spider_room():
 
-    pass
+    global game_state
+    global no_enemy
+    global enemy_alive
+    global room_contents
+
+    game_state['room']['items'] = {}
+
+    print """
+
+"""
+
+    no_enemy = False
+
+    enemy_alive == True
+
+    game_state['room']['enemies']['Spider'] = Enemy(
+        name = 'The Spider Queen',
+        description = ,
+        listen = ,
+        Sword = ,
+        Staff = ,
+        Cloak = ,
+        slay_txt = ,
+        die_txt = ,
+        item_txt = ,
+        door_clear = ,
+        valid_choices = ,
+    )
 
 
 def goblin_room():
 
-    pass
+    global game_state
+    global no_enemy
+    global enemy_alive
+    global room_contents
 
+    game_state['room']['items'] = {}
+
+    print """
+You walk through the door to find yourself in a dimly lit, mid-sized chamber.
+There are low burning torches on either side of each of three doors on \
+the far side of the room.
+Although the room was silent when you walked in save the crackle of the \
+torches the door swings shut and locks behind you...
+
+And then the laughing starts.
+Every corner of the room fills and echos with the sound.
+It is as if ten small children are giggling with distorted voices.
+The sound moves quickly all around you.
+
+You have stumbled into a den of goblins!
+You doubt you would make it to the doors on the other side alive...
+
+'As this is the first enemy you have encountered now would be a good time'
+'to tell you that you can interact with them with the items from the first'
+'room. You can do this simply by saying use (item) these are also commands'
+'which you can still find in help.'
+"""
+
+    no_enemy = False
+
+    enemy_alive == True
+
+    game_state['room']['enemies']['Goblins'] = Enemy(
+        name = 'Goblin Troop',
+        description = """
+Small and fleeting the goblins are hard to track other than their glowing \
+red orbs of eyes.
+When you finally get a glance they are green skinned with pointed ears \
+and jagged pointed teeth.
+They have clawed hands which could probably slice you to ribbons.
+""",
+        listen = """
+You hear them chatter about killing you and eating the flesh from your bones.
+But over all of this always they are laughing.
+""",
+        Sword = 'slay',
+        Staff = 'die',
+        Cloak = 'die',
+        slay_txt = """
+You unsheathe your sword to find it glowing a bright blue.
+Just as you do this one of the goblins who had apparently been trying to sneak \
+up on you dashes away, screaming in pain.
+The light seems to be blinding and searing to them.
+You make chase and quickly make easy work of the debilitated goblins.
+""",
+        die_txt = """
+The goblins dash by with lightning speed slicing at you as the pass.
+Very quickly your torn to shreds and bleeding out on the floor.
+Your last sight is of them hovering over you a bit of drool at their mouths.
+""",
+        item_txt = 'The last goblin falls infront of a mirrored round shield.',
+        door_clear = """
+Your path to the doors is now clear:
+The first is white,
+The second is brown,
+And the last is green.
+""",
+        valid_choices = ('goblin', 'goblins', 'the goblin', 'the goblins'),
+)
+    game_state['room']['enemies']['Goblins'].dead()
+
+    if enemy_alive == False:
+        game_state['room']['items']['shield'] = Item(
+            name = 'The Mirror Shield',
+            item_look = 'The shield is round and a perfect mirror.',
+            description = """
+You see a crystal clear reflection of yourself, the room and the blue \
+glow of your sword in the syrface of the shield.
+There is not a single scratch or blemish in the surface.
+Even with the shields gentle curve there is no distortion to the image it shows.
+The shield makes you feel much the same as your sword although calmer.
+""",
+            take_me = 'You fasten the shield to your back.',
+            valid_choices = ('shield', 'the shield', 'mirror shield',
+'the mirror shield'),
+)
+
+        game_state['room']['doors']['Brown door'] = Door(
+            name = 'Brown door',
+            listen = """
+Listening at the door you hear nothing, deafening, unending nothingness.
+Silence fails to describe the depth of nothingness you hear.
+""",
+            glance = 'A brown wood door.',
+            description = 'Just a simple plain brown wood door nothing descipt \
+or unique about it or it\'s handle.',
+            enter = infinite_room,
+            valid_choices = ('brown door', 'the brown door'),
+)
+
+        game_state['room']['doors']['White door'] = Door(
+            name = 'White door',
+            listen = """
+You hear a single deep rumbling sound still far off though and a quite...
+clicking sound?
+The second sound send chills down your spine.
+There is also a faint trickling sound which might be water?
+""",
+            glance = 'The door is pure white, a stark contrast to the dark room.',
+            description = """
+The door is not just white but perfectly clean even with the dank dirty nature \
+of the room.
+It strikes you as odd considering the layer of dirt and grim on everything else.
+The grain of the wood appears to be woven some how, rather than grown or carved.
+""",
+            enter = spider_room,
+            valid_choices = ('the white door', 'white door'),
+)
+
+        game_state['room']['doors']['Green door'] = Door(
+            name = 'Green door',
+            listen = """
+You hear a gentle breeze and the trickle of water on rocks.
+The sounds behind this door are oddly calm and refreshing.
+""",
+            glance = 'The green door looks as if it were alive.',
+            description = """
+The surface of the door looks like a bed of grass.
+It appears to shift as trees in the wind.
+It feels cool and plant like, while still being sturdy and solid.
+The knob looks almost like a mushroom.
+""",
+            enter = elf_room,
+            valid_choices = ('green door', 'the green door'),
+        )
+
+        room_contents = ['Shield', 'White door', 'Brown door', 'Green door']
+
+    elif enemy_alive == True:
+
+        room_contents = ['Goblins', 'Three daunting doors']
+
+        action()
 
 def lava_room():
 
-    pass
+    global game_state
+    global no_enemy
+    global enemy_alive
+    global room_contents
 
+    game_state['room']['items'] = {}
+
+    print """
+
+"""
+
+    no_enemy = False
+
+    enemy_alive == True
+
+    game_state['room']['enemies']['Elemental'] = Enemy(
+        name = 'Lava Spirit',
+        description = ,
+        listen = ,
+        Sword = ,
+        Staff = ,
+        Cloak = ,
+        slay_txt = ,
+        die_txt = ,
+        item_txt = ,
+        door_clear = ,
+        valid_choices = ,
+    )
 
 def infinite_room():
     global entries
     global game_over
+    global no_enemy
+
+    no_enemy == True
+
     entries = entries + 1
     if entries <= 9 and entries > 1:
         print '\nJust as the room before...'
@@ -945,11 +1147,28 @@ or unique about it or it\'s handle.',
 
 
 def dragon_chamber():
+
+    global game_state
+    global no_enemy
+    global enemy_alive
+    global room_contents
+    global dragon
+
+    game_state['room']['items'] = {}
+
     dragon = True
     print " "
 
 
 def treasure_room():
+
+    global game_state
+    global no_enemy
+    global enemy_alive
+    global room_contents
+
+    game_state['room']['items'] = {}
+
     print " "
 
 
