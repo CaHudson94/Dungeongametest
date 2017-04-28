@@ -27,12 +27,14 @@ class Command(object):
 
 class Door(object):
 
-    def __init__(self, name, listen, glance, description, enter, valid_choices):
+    def __init__(self, name, listen, glance, description, enter,
+    victory, valid_choices):
         self.name = name
         self.listen = listen
         self.glance = glance
         self.description = description
         self.enter = enter
+        self.victory = victory
         self.valid_choices = valid_choices
 
 
@@ -67,11 +69,12 @@ class Enemy(object):
         self.valid_choices = valid_choices
 
     def dead(self):
-        game_state['dead'] = [self.die_text]
+        game_state['dead'] = self.die_text
 
     def slay(self):
         enemy_alive = False
         print self.slay_text
+        print 'You have slain the %s!' % self.name
         print self.item_txt
         print self.door_clear
 
@@ -87,11 +90,6 @@ def new_game():
     game_state = {
         'player': {
             'inventory': {},
-            'interactions': {
-                'Sword': [],
-                'Staff': [],
-                'Cloak': [],
-                },
             },
         'room': {
             'listen': [],
@@ -102,6 +100,7 @@ def new_game():
         'starting_items': [],
         'commands': {},
         'dead': [],
+        'victory': [],
         }
 
     dragon = False
@@ -329,6 +328,7 @@ def entry_converter(enter):
     global game_state
     for door in game_state['room']['doors']:
         if enter in game_state['room']['doors'][door].valid_choices:
+            game_state['victory'] = game_state['room']['doors'][door].victory
             game_state['room']['doors'][door].enter()
             return
 
@@ -344,6 +344,7 @@ def entry_converter(enter):
 def ineract_converter(interact):
     global game_state
     global game_over
+    global no_enemy
     for interaction in game_state['commands']:
         if interact in game_state['commands'][interaction].valid_choices:
             if interact in game_state['commands']['Use Sword'].valid_choices:
@@ -351,6 +352,8 @@ def ineract_converter(interact):
                     for enemy in game_state['room']['enemies']:
                         if game_state['room']['enemies'][enemy].Sword == 'slay':
                             game_state['room']['enemies'][enemy].slay()
+                            game_state['room']['enemies'] = {}
+                            no_enemy = True
                             return
 
                         elif game_state['room']['enemies'][enemy].Sword == 'die':
@@ -371,6 +374,8 @@ def ineract_converter(interact):
                     for enemy in game_state['room']['enemies']:
                         if game_state['room']['enemies'][enemy].Staff == 'slay':
                             game_state['room']['enemies'][enemy].slay()
+                            game_state['room']['enemies'] = {}
+                            no_enemy = True
                             return
 
                         elif game_state['room']['enemies'][enemy].Staff == 'die':
@@ -391,6 +396,8 @@ def ineract_converter(interact):
                     for enemy in game_state['room']['enemies']:
                         if game_state['room']['enemies'][enemy].Cloak == 'slay':
                             game_state['room']['enemies'][enemy].slay()
+                            game_state['room']['enemies'] = {}
+                            no_enemy = True
                             return
 
                         elif game_state['room']['enemies'][enemy].Cloak == 'die':
@@ -529,8 +536,7 @@ it toasts you alive like a human shaped marshmallow! Chewy.'
                 game_over = True
 
             else:
-                game_state['dead'] = '\nI don\'t know why but you chose to die, \
-your neck snaps.'
+                print '\nI don\'t know why but you choose to die.'
                 game_over = True
 
         elif choice in game_state['commands']['Quit'].valid_choices:
@@ -539,11 +545,11 @@ your neck snaps.'
         else:
             print '\nThat is not very helpful. Look around or something! Or ask for help?'
 
-    if victory:
-        print 'You have slain the dragon and escaped the dungeon!'
-        print 'Congratulations on your successful journey!'
-        print 'You claim your riches and retire to a grand castle!'
-        print '\n\nVICTORY!\n'
+    if victory == True:
+        print '\n', '-' * 8, 'You follow the path out of the treasure room.', '-' * 8
+        print '-' * 9, 'Congratulations on your successful journey!', '-' * 9
+        print '-' * 5, 'You claim your riches and retire to a grand castle!', '-' * 5
+        print '\n\n', '-' * 26, 'VICTORY!!', '-' * 26, '\n'
         play_again = raw_input('Would you like to play again?\n> ')
         if play_again in game_state['commands']['Yes'].valid_choices:
             new_game()
@@ -568,8 +574,11 @@ your neck snaps.'
 def entrance_hall():
     global game_state
     global room_contents
-    print "\n\n"
-    print "-" * 80
+
+    game_state['dead'] = 'Your neck snaps.\n'
+
+    print '\n\n'
+    print '-' * 110
     print """
 You wake up to find yourself in a large chamber lit by torches.
 Looking around you see three doors, one black, one red, and one silver.
@@ -608,6 +617,7 @@ Looking away your eyes must re-adjust to the light of the room as if you \
 had been in a dark space.
 """,
         enter = troll_room,
+        victory = '',
         valid_choices = ('black door', 'the black door', 'a black door'),
 )
 
@@ -625,6 +635,7 @@ It is warm to the touch and you start sweating a little just standing in \
 front of it.
 """,
         enter = lava_room,
+        victory = '',
         valid_choices = ('red door', 'the red door', 'a red door'),
 )
 
@@ -641,6 +652,7 @@ It is cool to the touch and when you pull your hand away you find your
 heart beating from what you can only describe as a thrill?
 """,
         enter = goblin_room,
+        victory = '',
         valid_choices = ('silver door', 'the silver door', 'a silver door'),
 )
 
@@ -719,9 +731,10 @@ def troll_room():
     global room_contents
 
     game_state['room']['items'] = {}
+    game_state['room']['doors'] = {}
 
-    print "\n\n"
-    print "-" * 80
+    print '\n\n'
+    print '-' * 110
     print """
 You walk through the door to find yourself in a dimly lit, mid-sized chamber.
 There is a single chandelier in the center of the room with only a few \
@@ -783,7 +796,7 @@ And then you are jelly on the wall!
 You were crushed between the trolls club and the wall.
 """,
         item_txt = 'The clasp on the anklet opens and it falls to the ground \
-with a heavy crash, cracking the stones of the floor.',
+with a heavy crash,\ncracking the stones of the floor.',
         door_clear = """
 With the troll dead, brains decorating the floor, the doors are now clear.
 One is a pure white and the other a plain brown.
@@ -824,6 +837,7 @@ Silence fails to describe the depth of nothingness you hear.
             description = 'Just a simple plain brown wood door nothing descipt \
 or unique about it or it\'s handle.',
             enter = infinite_room,
+            victory = '',
             valid_choices = ('brown door', 'the brown door'),
 )
 
@@ -843,6 +857,7 @@ It strikes you as odd considering the layer of dirt and grim on everything else.
 The grain of the wood appears to be woven some how, rather than grown or carved.
 """,
             enter = spider_room,
+            victory = '',
             valid_choices = ('the white door', 'white door'),
 )
 
@@ -863,28 +878,200 @@ def spider_room():
     global room_contents
 
     game_state['room']['items'] = {}
+    game_state['room']['doors'] = {}
 
     print """
+You enter the room to be somewhat blinded.
+Unlike the past rooms this one is lit with pale bright moonlight.
+How ever only in patches as there are three small holes in the ceiling.
+The rest of the room seems even darker by contrast.
 
+Because of the sudden change in light you can not see much.
+You can tell the room is rather large and there is one door on the far side \
+which is voered by something.
+
+The door you just came through swings shut behind you and locks and \
+then you hear it...
+
+A distinct, resonating clicking sound which causes your heart to race.
+You are not alone...
+
+You notice the light from the holes is being filtered through something \
+in a few spots.
+You walk under on such spot and look up to find it is passing through what \
+appears to be...
+
+WEB! You have stumbled into a spiders lair.
+
+'Another ssssnnnackk to feed my hunger!'
+
+You suddenly realize looking around that there are bodies and skeletons \
+scattered on the floor.
+There are also cacoons of web suspended from the ceiling.
 """
 
     no_enemy = False
 
     enemy_alive == True
 
-    game_state['room']['enemies']['Spider'] = Enemy(
-        name = 'The Spider Queen',
-        description = ,
-        listen = ,
-        Sword = ,
-        Staff = ,
-        Cloak = ,
-        slay_txt = ,
-        die_txt = ,
-        item_txt = ,
-        door_clear = ,
-        valid_choices = ,
-    )
+    if 'Sword' in game_state['player']['inventory']:
+        if 'Shield' in game_state['player']['inventory']:
+            game_state['room']['enemies']['Spider'] = Enemy(
+                name = 'Spider Queen',
+                description = """
+You get dangerously close but see the Spider Queens in her entirety.
+
+Her legs are as thick as chirstmas trees and roughly four feet per segment, \
+with three segments.
+Her body is the size of a small hut and each eye the size of your fist.
+She has razor sharp pincers at her mouth and a stinger the size of your leg \
+that is dripping in venom.
+""",
+                listen = 'She clacks and skitters around the room, panthing \
+with hungry anticipation.',
+                Sword = 'slay',
+                Staff = 'die',
+                Cloak = 'die',
+                slay_txt = """
+The spider queen starts to charge you but you pull the shield off your back.
+She stops short and gazes, trasfixed at her own reflection.
+Keeping the shield beefore her eyes, you draw your sword and swing it over \
+both of you.
+You stab into her head and she wriths and stabs at the air with her stinger \
+narrowly missing you.
+She twitches for a few more moments and then dies.
+Once she is motionless all her web around the room clears magically and the
+room gets much brighter.
+What was three holes of light you now realize was a single larger, round opening.
+""",
+                die_txt = """
+You make a move but feel a swift sting in your back.
+You have been poisoned and are now being swiftly wrapped in a cacoon.
+You will soon be a meal for the Spider Queen!
+""",
+                item_txt = """
+With the spider slain a ghost of one of the fallen appears before you.
+
+'Thank you for avenging all of our deaths.'
+'I entered hear believing that my speed would save me, but it did not.'
+'I bid you take my boots with you, as they are enchanted to make you faster \
+and lighter of step.'
+
+He points to where a body lay near the edge of the room still wearing a pair \
+leather boots.
+""",
+                door_clear = 'The web which had sealed off the door clears.',
+                valid_choices = ('spider', 'spider queen', 'the spider',
+    'the spider queen'),
+)
+
+        elif 'Shield' not in game_state['player']['inventory']:
+            game_state['room']['enemies']['Spider'] = Enemy(
+                name = 'Spider Queen',
+                description = """
+You get dangerously close but see the Spider Queens in her entirety.
+
+Her legs are as thick as chirstmas trees and roughly four feet per segment, \
+with three segments.
+Her body is the size of a small hut and each eye the size of your fist.
+She has razor sharp pincers at her mouth and a stinger the size of your leg \
+that is dripping in venom.
+""",
+                listen = 'She clacks and skitters around the room, panthing \
+with hungry anticipation.',
+                Sword = 'die',
+                Staff = 'die',
+                Cloak = 'die',
+                slay_txt = '',
+                die_txt = """
+You make a move but feel a swift sting in your back.
+You have been poisoned and are now being swiftly wrapped in a cacoon.
+You will soon be a meal for the Spider Queen!
+""",
+                item_txt = '',
+                door_clear = '',
+                valid_choices = ('spider', 'spider queen', 'the spider',
+    'the spider queen'),
+)
+
+    elif 'Cloak' in game_state['player']['inventory']:
+        if 'Anklet' in game_state['player']['inventory']:
+            game_state['room']['enemies']['Spider'] = Enemy(
+                name = 'Spider Queen',
+                description = """
+You get dangerously close but see the Spider Queens in her entirety.
+
+Her legs are as thick as chirstmas trees and roughly four feet per segment, \
+with three segments.
+Her body is the size of a small hut and each eye the size of your fist.
+She has razor sharp pincers at her mouth and a stinger the size of your leg \
+that is dripping in venom.
+Once she is motionless all her web around the room clears magically and the
+room gets much brighter.
+What was three holes of light you now realize was a single larger, round opening.
+""",
+                listen = 'She clacks and skitters around the room, panthing \
+with hungry anticipation.',
+                Sword = 'die',
+                Staff = 'die',
+                Cloak = 'slay',
+                slay_txt = """
+Turns out the Spider Queen is mostly blind!
+It heard you enter but since has had no idea where you were thanks to your cloak.
+You use your stealth to get close to her then...
+
+With the strength you gained from the anklet you force her stinger into her \
+own body.
+The puncture wound coupled with her own poison kills her almost imediatly.
+""",
+                die_txt = """
+You make a move but feel a swift sting in your back.
+You have been poisoned and are now being swiftly wrapped in a cacoon.
+You will soon be a meal for the Spider Queen!
+""",
+                item_txt = """
+With the spide slain a ghost of one of the slain appears before you.
+
+'Thank you for avenging all of our deaths.'
+'I entered hear believing that my speed would save me, but it did not.'
+'I bid you take my boots with you, as they are enchanted to make you faster \
+and lighter of step.'
+
+He points to where a body lay near the edge of the room still wearing a pair \
+leather boots.
+""",
+                door_clear = 'The web which had sealed off the door clears.',
+                valid_choices = ('spider', 'spider queen', 'the spider',
+    'the spider queen'),
+)
+        elif 'Anklet' not in game_state['player']['inventory']:
+            game_state['room']['enemies']['Spider'] = Enemy(
+                name = 'Spider Queen',
+                description = """
+You get dangerously close but see the Spider Queens in her entirety.
+
+Her legs are as thick as chirstmas trees and roughly four feet per segment, \
+with three segments.
+Her body is the size of a small hut and each eye the size of your fist.
+She has razor sharp pincers at her mouth and a stinger the size of your leg \
+that is dripping in venom.
+""",
+                listen = 'She clacks and skitters around the room, panthing \
+with hungry anticipation.',
+                Sword = 'die',
+                Staff = 'die',
+                Cloak = 'die',
+                slay_txt = '',
+                die_txt = """
+You make a move but feel a swift sting in your back.
+You have been poisoned and are now being swiftly wrapped in a cacoon.
+You will soon be a meal for the Spider Queen!
+""",
+                item_txt = '',
+                door_clear = '',
+                valid_choices = ('spider', 'spider queen', 'the spider',
+    'the spider queen'),
+)
 
 
 def goblin_room():
@@ -895,7 +1082,10 @@ def goblin_room():
     global room_contents
 
     game_state['room']['items'] = {}
+    game_state['room']['doors'] = {}
 
+    print '\n\n'
+    print '-' * 110
     print """
 You walk through the door to find yourself in a dimly lit, mid-sized chamber.
 There are low burning torches on either side of each of three doors on \
@@ -941,7 +1131,9 @@ But over all of this always they are laughing.
 You unsheathe your sword to find it glowing a bright blue.
 Just as you do this one of the goblins who had apparently been trying to sneak \
 up on you dashes away, screaming in pain.
+
 The light seems to be blinding and searing to them.
+
 You make chase and quickly make easy work of the debilitated goblins.
 """,
         die_txt = """
@@ -961,7 +1153,8 @@ And the last is green.
     game_state['room']['enemies']['Goblins'].dead()
 
     if enemy_alive == False:
-        game_state['room']['items']['shield'] = Item(
+        game_state['room']['enemies'] = {}
+        game_state['room']['items']['Shield'] = Item(
             name = 'The Mirror Shield',
             item_look = 'The shield is round and a perfect mirror.',
             description = """
@@ -986,6 +1179,7 @@ Silence fails to describe the depth of nothingness you hear.
             description = 'Just a simple plain brown wood door nothing descipt \
 or unique about it or it\'s handle.',
             enter = infinite_room,
+            victory = '',
             valid_choices = ('brown door', 'the brown door'),
 )
 
@@ -1005,6 +1199,7 @@ It strikes you as odd considering the layer of dirt and grim on everything else.
 The grain of the wood appears to be woven some how, rather than grown or carved.
 """,
             enter = spider_room,
+            victory = '',
             valid_choices = ('the white door', 'white door'),
 )
 
@@ -1022,6 +1217,7 @@ It feels cool and plant like, while still being sturdy and solid.
 The knob looks almost like a mushroom.
 """,
             enter = elf_room,
+            victory = '',
             valid_choices = ('green door', 'the green door'),
         )
 
@@ -1041,9 +1237,26 @@ def lava_room():
     global room_contents
 
     game_state['room']['items'] = {}
+    game_state['room']['doors'] = {}
 
+    print '\n\n'
+    print '-' * 110
     print """
+The air hits you with a blast of heat as you enter.
+The room is large and cavernous and filled with light.
+There is a slim path from you to a central island and another pair of doors \
+opposite you with no path to them.
+As you walk into and reach the central island the path behind you sinks into \
+the ring of lava that rims the outside edge of the room.
 
+Opposite stands (or should I say oozes?) what looks like a humanoid lava creature?
+
+The lava elemental roars at the sight of you but does not move.
+
+'As this is the first enemy you have encountered now would be a good time'
+'to tell you that you can interact with them with the items from the first'
+'room. You can do this simply by saying use (item) these are also commands'
+'which you can still find in help.'
 """
 
     no_enemy = False
@@ -1051,23 +1264,110 @@ def lava_room():
     enemy_alive == True
 
     game_state['room']['enemies']['Elemental'] = Enemy(
-        name = 'Lava Spirit',
-        description = ,
-        listen = ,
-        Sword = ,
-        Staff = ,
-        Cloak = ,
-        slay_txt = ,
-        die_txt = ,
-        item_txt = ,
-        door_clear = ,
-        valid_choices = ,
-    )
+        name = 'Lava Elemental',
+        description = 'A humanoid embodiment of lava it self.',
+        listen = 'Glub...',
+        Sword = 'die',
+        Staff = 'slay',
+        Cloak = 'die',
+        slay_txt = """
+You lift your staff into the air and strike the ground.
+The ground frosts over at your feet and spide webs its way across \
+to the elemental.
+Spires of ice shoot from the ground and pierce the elemental.
+It shouts in pain for a briefe moment, glows and dispells into a puddle which \
+receds back to the pool at the edges of the room.
+""",
+        die_txt = 'As you approach the elemental simply reaches out and melts \
+your head.',
+        item_txt = 'Left on the ground where the elemental was is a glowing \
+Red Gem.',
+        door_clear = 'As what was the elemental rejoins the lava two paths \
+form leading to the doors out.',
+        valid_choices = ('elemental', 'the elemental', 'lava elemental',
+'the lava elemental', 'lava', 'the lava'),
+)
+
+    if enemy_alive == False:
+        game_state['room']['enemies'] = {}
+        game_state['room']['items']['Red Gem'] = Item(
+            name = 'The Flame Gem',
+            item_look = 'The gem is warm to the touch and an ever-changing \
+hue of red.',
+            description = """
+The gem pulses with power and exudes heat in all directions.
+It appears as though solid and liquid and fire it self all at once.
+""",
+            take_me = 'You pick up the gem and it sets it self into your staff.',
+            valid_choices = ('gem', 'the gem', 'flame gem', 'the flame gem'),
+)
+
+        game_state['room']['doors']['Brown door'] = Door(
+            name = 'Brown door',
+            listen = """
+Listening at the door you hear nothing, deafening, unending nothingness.
+Silence fails to describe the depth of nothingness you hear.
+""",
+            glance = 'A brown wood door.',
+            description = 'Just a simple plain brown wood door nothing descipt \
+or unique about it or it\'s handle.',
+            enter = infinite_room,
+            victory = '',
+            valid_choices = ('brown door', 'the brown door'),
+)
+
+        game_state['room']['doors']['Green door'] = Door(
+            name = 'Green door',
+            listen = """
+You hear a gentle breeze and the trickle of water on rocks.
+The sounds behind this door are oddly calm and refreshing.
+""",
+            glance = 'The green door looks as if it were alive.',
+            description = """
+The surface of the door looks like a bed of grass.
+It appears to shift as trees in the wind.
+It feels cool and plant like, while still being sturdy and solid.
+The knob looks almost like a mushroom.
+""",
+            enter = elf_room,
+            victory = '',
+            valid_choices = ('green door', 'the green door'),
+)
+
+        room_contents = ['Red Gem', 'Brown door', 'Green door']
+
+    elif enemy_alive == True:
+
+        room_contents = ['Lava elemental', 'Two inaccessible doors']
+
+        action()
+
+
+def elf_room():
+
+    global game_state
+    global no_enemy
+    global enemy_alive
+    global room_contents
+
+    game_state['room']['items'] = {}
+    game_state['room']['doors'] = {}
+    game_state['room']['enemies'] = {}
+
+    print '\n\n'
+    print '-' * 110
+    print """
+
+"""
 
 def infinite_room():
     global entries
     global game_over
     global no_enemy
+
+    game_state['room']['items'] = {}
+    game_state['room']['doors'] = {}
+    game_state['room']['enemies'] = {}
 
     no_enemy == True
 
@@ -1082,6 +1382,8 @@ You carve out your own eyes.
 """
         game_over = True
 
+    print '\n\n'
+    print '-' * 110
     print """
 You find yourself in a black room.
 It is devoid of all color, life or light. It is not dark simply black.
@@ -1102,6 +1404,7 @@ Silence fails to describe the depth of nothingness you hear.
         description = 'Just a simple plain brown wood door nothing descipt \
 or unique about it or it\'s handle.',
         enter = infinite_room,
+        victory = '',
         valid_choices = ('the near brown door', 'near brown door'),
 )
 
@@ -1115,6 +1418,7 @@ Silence fails to describe the depth of nothingness you hear.
         description = 'Just a simple plain brown wood door nothing descipt \
 or unique about it or it\'s handle.',
         enter = infinite_room,
+        victory = '',
         valid_choices = ('the far brown door', 'far brown door'),
 )
 
@@ -1124,6 +1428,12 @@ or unique about it or it\'s handle.',
         glance = '',
         description = '',
         enter = treasure_room,
+        victory = """
+THERE IS AN ELF IN FRONT OF YOU!
+
+Just kidding, you found the way out of the darkness.
+You open the door to find...
+""",
         valid_choices = ('i use magic missile',
 'i use magic missile at the darkness', 'i cast magic missile',
 'i cast magic missile at the darkness', 'cast magic missile',
@@ -1137,6 +1447,16 @@ or unique about it or it\'s handle.',
         glance = '',
         description = '',
         enter = treasure_room,
+        victory = """
+'Why is it so dark?'
+
+'In the beginning it is always dark.'
+
+'It's like the nothing never was!'
+
+You have defeated the nothing and found a way out.
+You open the door to find...
+""",
         valid_choices = ('moonchild', 'moonchild!', 'name of the empress'),
 )
 
@@ -1158,7 +1478,7 @@ def dragon_chamber():
 
     dragon = True
     print " "
-
+    game_state['victory'] = 'You have slain the dragon and escaped the dungeon!'
 
 def treasure_room():
 
@@ -1166,10 +1486,30 @@ def treasure_room():
     global no_enemy
     global enemy_alive
     global room_contents
+    global game_over
+    global victory
 
     game_state['room']['items'] = {}
+    game_state['room']['doors'] = {}
 
-    print " "
+    print game_state['victory']
 
+    print '\n'
+    print '-' * 110
+
+    print """
+A vast hall filled with treasures!
+Every corner of the room is covered in piles of gold, jewels, and magnificent \
+weapons.
+
+'This is your prize!'
+'Take what you will, it is yours and you may return as often as you need.'
+
+You bask in the pure volume of treasures before you then...
+"""
+
+    victory = True
+
+    game_over = True
 
 new_game()
